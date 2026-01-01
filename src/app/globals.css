@@ -24,3 +24,56 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ===== Custom Scrollbar (NO ARROWS / CARETS) ===== */
+
+/* Firefox */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.5) transparent;
+}
+
+/* WebKit browsers */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track */
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Thumb */
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.5);
+  border-radius: 9999px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.8);
+}
+.scrollbar-custom::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none !important; /* Prevents system-level rendering */
+}
+
+/* 🚫 REMOVE ALL SCROLLBAR BUTTONS (arrows) */
+.scrollbar-custom::-webkit-scrollbar-button,
+.scrollbar-custom::-webkit-scrollbar-button:single-button,
+.scrollbar-custom::-webkit-scrollbar-button:vertical,
+.scrollbar-custom::-webkit-scrollbar-button:horizontal,
+.scrollbar-custom::-webkit-scrollbar-button:start,
+.scrollbar-custom::-webkit-scrollbar-button:end,
+.scrollbar-custom::-webkit-scrollbar-button:increment,
+.scrollbar-custom::-webkit-scrollbar-button:decrement {
+  display: none !important;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+.scrollbar-custom::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
