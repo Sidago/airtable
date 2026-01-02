@@ -42,31 +42,14 @@ export default function Content() {
                 wrapperClassName="w-40"
                 placeholder="Lead Type"
                 searchable
+                multiple
                 options={[
                   {
-                    label: (
-                      <div className="flex items-center gap-2">
-                        <Checkbox wrapperClassName="mt-1" />
-                        <Badge>
-                          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-                            Hot
-                          </span>
-                        </Badge>
-                      </div>
-                    ),
+                    label: "Hot",
                     value: "hot",
                   },
                   {
-                    label: (
-                      <div className="flex items-center gap-2">
-                        <Checkbox wrapperClassName="mt-1" />
-                        <Badge>
-                          <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-                            General
-                          </span>
-                        </Badge>
-                      </div>
-                    ),
+                    label: "General",
                     value: "general",
                   },
                 ]}
@@ -75,31 +58,14 @@ export default function Content() {
                 wrapperClassName="w-40"
                 placeholder="Call Result"
                 searchable
+                multiple
                 options={[
                   {
-                    label: (
-                      <div className="flex items-center gap-2">
-                        <Checkbox wrapperClassName="mt-1" />
-                        <Badge>
-                          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-                            Hot
-                          </span>
-                        </Badge>
-                      </div>
-                    ),
+                    label: "Interested",
                     value: "hot",
                   },
                   {
-                    label: (
-                      <div className="flex items-center gap-2">
-                        <Checkbox wrapperClassName="mt-1" />
-                        <Badge>
-                          <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-                            General
-                          </span>
-                        </Badge>
-                      </div>
-                    ),
+                    label: "No answer",
                     value: "general",
                   },
                 ]}

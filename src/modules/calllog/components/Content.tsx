@@ -5,7 +5,8 @@ import Footer from "@/components/ui/contact-drawer/Footer";
 import Header from "@/components/ui/contact-drawer/Header";
 import InfoRow from "@/components/ui/InfoRow";
 import InvalidAction from "@/components/ui/InvalidAction";
-import Heading from "@/modules/calllogbeta/Heading";
+import Heading from "@/modules/calllog/components/Heading";
+import Sidebar from "@/modules/calllog/components/sidebar/Sidebar";
 import { ExternalLink } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -27,6 +28,9 @@ export default function Content() {
   return (
     <div className="h-screen overflow-hidden">
       <div className="flex h-full">
+        {/* Desktop Sidebar */}
+        <Sidebar />
+
         {/* Main Content */}
         <div className="flex flex-col flex-1 min-w-0">
           {/* Sticky Heading */}
@@ -35,15 +39,7 @@ export default function Content() {
           {/* Scrollable Content */}
           <main className="flex-1 overflow-y-auto scrollbar-custom">
             {/* your page content here */}
-            <div className="p-10 space-y-10 max-w-6xl mx-auto">
-              <div className="text-base font-semibold flex items-center gap-4">
-                NASDAQ : FRPT - Mr. Christopher Kraus
-                <Badge>
-                  <span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-                    Prospecting
-                  </span>
-                </Badge>
-              </div>
+            <div className="p-10 space-y-10">
               {/* first row */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch">
                 <InfoRow
@@ -226,10 +222,7 @@ export default function Content() {
             scrolled={isScrolled}
             label="NASDAQ : FRPT - Mr. Scott James Morris"
           />
-          <div
-            className="flex-1 overflow-y-auto scrollbar-custom"
-            onScroll={handleScroll}
-          >
+          <div className="flex-1 overflow-y-auto scrollbar-custom" onScroll={handleScroll}>
             <section className="p-10 space-y-10">
               <p className="text-xl font-semibold">
                 NASDAQ : FRPT - Mr. Scott James Morris

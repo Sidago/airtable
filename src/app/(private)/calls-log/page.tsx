@@ -1,4 +1,4 @@
-import Content from "@/modules/calllog/Content";
+import Content from "@/modules/calllog/components/Content";
 import React from "react";
 
 export default function CallLogs() {

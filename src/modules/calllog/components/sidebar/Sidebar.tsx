@@ -5,8 +5,8 @@ import SearchArea from "./SearchArea";
 import Menu from "./Menu";
 import { MenuProps } from "@/types/menu.calllog";
 import Badge from "@/components/shared/Badge";
-import AddLeadHeader from "@/modules/lead/add/Header";
-import AddLeadFooter from "@/modules/lead/add/Footer";
+import AddLeadHeader from "@/modules/lead/components/add/Header";
+import AddLeadFooter from "@/modules/lead/components/add/Footer";
 import dynamic from "next/dynamic";
 import DateInput from "@/components/shared/DateInput";
 const Drawer = dynamic(() => import("@/components/shared/Drawer"), {
