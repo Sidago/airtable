@@ -28,13 +28,13 @@ interface InputProps {
 
   /* Field */
   as?: "input" | "textarea";
-  type?: "text" | "password";
+  type?: "text" | "password"; // input only
   placeholder?: string;
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;
 
-  /* Icons */
+  /* Icons (input only) */
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   onLeftIconClick?: () => void;
@@ -56,6 +56,7 @@ interface InputProps {
   iconClassName?: string;
   errorClassName?: string;
 
+  /* Textarea */
   rows?: number;
 }
 
@@ -68,14 +69,14 @@ export default function Input({
 
   label,
   labelClassName = "text-xs font-semibold",
-  labelWrapperClassName,
+  labelWrapperClassName = "",
 
   as = "input",
   type = "text",
   placeholder,
   disabled,
   readOnly,
-  required=false,
+  required = false,
 
   leftIcon,
   rightIcon,
@@ -90,8 +91,10 @@ export default function Input({
 
   wrapperClassName = "",
   fieldWrapperClassName = "",
-  inputClassName = "w-full border border-gray-200 rounded px-2 py-0.5 outline-0 focus:border-blue-400",
-  textareaClassName = "",
+  inputClassName =
+    "w-full border border-gray-200 rounded px-2 py-0.5 outline-0 focus:border-blue-400",
+  textareaClassName =
+    "w-full border border-gray-200 rounded px-2 py-1 outline-0 focus:border-blue-400 resize-none",
   iconClassName = "",
   errorClassName = "text-xs font-normal text-red-400 py-2",
 
@@ -102,8 +105,10 @@ export default function Input({
   const [showPassword, setShowPassword] = useState(false);
 
   const currentValue = value !== undefined ? value : internalValue;
-  const actualType = type === "password" && showPassword ? "text" : type;
+  const actualType =
+    type === "password" && showPassword ? "text" : type;
 
+  /* ---------- Validation ---------- */
   const validate = async (val: string) => {
     for (const rule of rules) {
       if (rule.type === "required" && !val) {
@@ -134,13 +139,13 @@ export default function Input({
     return true;
   };
 
+  /* ---------- Events ---------- */
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const val = e.target.value;
 
     if (value === undefined) setInternalValue(val);
-
     onChange?.(val);
 
     if (validateOn === "change") {
@@ -157,24 +162,19 @@ export default function Input({
     onBlur?.(e);
   };
 
+  /* ---------- Render ---------- */
   return (
     <div className={wrapperClassName}>
       {label && (
         <div className={labelWrapperClassName}>
-          <label className={labelClassName}>{label} {required && <span className="text-red-400">*</span>}</label>
+          <label className={labelClassName}>
+            {label}
+            {required && <span className="ml-1 text-red-400">*</span>}
+          </label>
         </div>
       )}
 
-      <div className={`relative flex items-center ${fieldWrapperClassName}`}>
-        {leftIcon && (
-          <span
-            onClick={onLeftIconClick}
-            className={`absolute left-3 cursor-pointer ${iconClassName}`}
-          >
-            {leftIcon}
-          </span>
-        )}
-
+      <div className={`relative ${fieldWrapperClassName}`}>
         {as === "textarea" ? (
           <textarea
             name={name}
@@ -188,38 +188,50 @@ export default function Input({
             className={textareaClassName}
           />
         ) : (
-          <input
-            name={name}
-            type={actualType}
-            value={currentValue}
-            placeholder={placeholder}
-            disabled={disabled}
-            readOnly={readOnly}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={inputClassName}
-          />
-        )}
-
-        {(rightIcon || (type === "password" && enablePasswordToggle)) && (
-          <span
-            onClick={
-              type === "password" && enablePasswordToggle
-                ? () => setShowPassword((s) => !s)
-                : onRightIconClick
-            }
-            className={`absolute right-3 cursor-pointer ${iconClassName}`}
-          >
-            {type === "password" && enablePasswordToggle ? (
-              showPassword ? (
-                <EyeOff size={16} />
-              ) : (
-                <Eye size={16} />
-              )
-            ) : (
-              rightIcon
+          <>
+            {leftIcon && (
+              <span
+                onClick={onLeftIconClick}
+                className={`absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer ${iconClassName}`}
+              >
+                {leftIcon}
+              </span>
             )}
-          </span>
+
+            <input
+              name={name}
+              type={actualType}
+              value={currentValue}
+              placeholder={placeholder}
+              disabled={disabled}
+              readOnly={readOnly}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={inputClassName}
+            />
+
+            {(rightIcon ||
+              (type === "password" && enablePasswordToggle)) && (
+              <span
+                onClick={
+                  type === "password" && enablePasswordToggle
+                    ? () => setShowPassword((s) => !s)
+                    : onRightIconClick
+                }
+                className={`absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer ${iconClassName}`}
+              >
+                {type === "password" && enablePasswordToggle ? (
+                  showPassword ? (
+                    <EyeOff size={16} />
+                  ) : (
+                    <Eye size={16} />
+                  )
+                ) : (
+                  rightIcon
+                )}
+              </span>
+            )}
+          </>
         )}
       </div>
 

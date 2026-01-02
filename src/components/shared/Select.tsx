@@ -176,7 +176,7 @@ export default function Select({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
-              className="w-full px-3 py-2 border-b outline-none"
+              className="w-full px-3 py-2 border-b border-gray-200 outline-none"
             />
           )}
 

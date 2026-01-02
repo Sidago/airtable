@@ -1,9 +1,10 @@
-import React from 'react'
+import Content from "@/modules/dashboard/components/Content";
+import React from "react";
 
 export default function page() {
   return (
     <div>
-      Dashboard
+      <Content />
     </div>
-  )
+  );
 }
