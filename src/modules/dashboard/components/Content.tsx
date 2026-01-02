@@ -4,8 +4,6 @@ import Header from "./Header";
 import StatCard from "@/components/shared/StatCard";
 import Divider from "@/components/shared/Divider";
 import Select from "@/components/shared/Select";
-import Checkbox from "@/components/shared/Checkbox";
-import Badge from "@/components/shared/Badge";
 
 export default function Content() {
   return (
