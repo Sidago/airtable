@@ -84,3 +84,6 @@ interface AvatarProps {
 - Shape and size can be fully customized with Tailwind classes.
 - Can be used standalone or in combination with the Badge component.
 
+---
+
+Built with ❤️ by Mostakim Billah

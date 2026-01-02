@@ -1,20 +1,151 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Header from "./Header";
 import SearchArea from "./SearchArea";
 import Menu from "./Menu";
 import { MenuProps } from "@/types/menu.calllog";
 import Badge from "@/components/shared/Badge";
+import AddLeadHeader from "@/modules/lead/add/Header";
+import AddLeadFooter from "@/modules/lead/add/Footer";
+import dynamic from "next/dynamic";
+import DateInput from "@/components/shared/DateInput";
+const Drawer = dynamic(() => import("@/components/shared/Drawer"), {
+  ssr: false,
+});
+const Input = dynamic(() => import("@/components/shared/Input"), {
+  ssr: false,
+});
+const Select = dynamic(() => import("@/components/shared/Select"), {
+  ssr: false,
+});
 
 export default function Sidebar() {
+  const [drawer, setDrawer] = useState(false);
   return (
     <div className="w-80 h-screen bg-white border-r border-gray-200 flex flex-col">
-      <Header />
+      <Header onClick={() => setDrawer(true)} />
       <SearchArea />
       <div className="flex-1 overflow-y-auto">
         {MENUS.map((menu, idx) => (
           <Menu key={idx} {...menu} />
         ))}
       </div>
+      <Drawer
+        width="w-2xl"
+        height="h-full"
+        isOpen={drawer}
+        onClose={() => setDrawer(false)}
+      >
+        <div className="flex flex-col h-full">
+          <AddLeadHeader onClose={() => setDrawer(false)} />
+          <div className="flex-1 overflow-y-auto scrollbar-custom p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+              <Input
+                label="Name"
+                type="text"
+                iconClassName="text-gray-500"
+                rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
+                required
+              />
+              <Select
+                label="Role"
+                required
+                options={[
+                  { label: "Active", value: "active" },
+                  { label: "Inactive", value: "inactive" },
+                ]}
+                rules={[
+                  {
+                    type: "custom",
+                    validator: (v) => v !== "inactive",
+                    message: "Inactive not allowed",
+                  },
+                ]}
+              />
+              <Select
+                label="Company"
+                required
+                options={[
+                  { label: "Active", value: "active" },
+                  { label: "Inactive", value: "inactive" },
+                ]}
+                rules={[
+                  {
+                    type: "custom",
+                    validator: (v) => v !== "inactive",
+                    message: "Inactive not allowed",
+                  },
+                ]}
+              />
+              <Input
+                label="Phone"
+                required
+                type="text"
+                iconClassName="text-gray-500"
+                rules={[{ type: "required" }, { type: "minLength", value: 8 }]}
+              />
+              <Input
+                label="Email"
+                type="text"
+                iconClassName="text-gray-500"
+                rules={[{ type: "required" }, { type: "minLength", value: 8 }]}
+              />
+              <DateInput label="Follow Up Date" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold mt-5 mb-5">
+                Default Option - cannot be changed
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                <Select
+                  label="Assigned To"
+                  options={[
+                    { label: "Active", value: "active" },
+                    { label: "Inactive", value: "inactive" },
+                  ]}
+                  rules={[
+                    {
+                      type: "custom",
+                      validator: (v) => v !== "inactive",
+                      message: "Inactive not allowed",
+                    },
+                  ]}
+                />
+                <Select
+                  label="Lead Type"
+                  options={[
+                    { label: "Active", value: "active" },
+                    { label: "Inactive", value: "inactive" },
+                  ]}
+                  rules={[
+                    {
+                      type: "custom",
+                      validator: (v) => v !== "inactive",
+                      message: "Inactive not allowed",
+                    },
+                  ]}
+                />
+                <Select
+                  label="Contact Type"
+                  options={[
+                    { label: "Active", value: "active" },
+                    { label: "Inactive", value: "inactive" },
+                  ]}
+                  rules={[
+                    {
+                      type: "custom",
+                      validator: (v) => v !== "inactive",
+                      message: "Inactive not allowed",
+                    },
+                  ]}
+                />
+                <DateInput label="Date Became Hot" />
+              </div>
+            </div>
+          </div>
+          <AddLeadFooter />
+        </div>
+      </Drawer>
     </div>
   );
 }
@@ -49,7 +180,6 @@ const TIMEZONEBADGE = {
     </Badge>
   ),
 };
-<Badge standalone count="Hot" color="bg-red-500" textColor="text-white" />
 
 const MENUS: MenuProps[] = [
   // 1st Menu

@@ -137,3 +137,7 @@ const items = [
 * Active item styling uses **`data-[headlessui-state=active]`** for Tailwind compatibility (Headless UI v1.7+).
 * Supports **ReactNode** for labels for flexible content.
 * Single **`onChange`** callback handles all item selection.
+
+---
+
+Built with ❤️ by Mostakim Billah

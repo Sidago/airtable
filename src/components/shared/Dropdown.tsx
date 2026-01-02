@@ -96,7 +96,7 @@ export default function Dropdown({
                 placeholder="Search..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full rounded-md border border-gray-100 px-8 py-1.5 text-sm outline-none"
+                className="w-full rounded-md border border-gray-100 px-8 py-1.5 text-sm font-normal outline-none"
               />
             </div>
           </div>
