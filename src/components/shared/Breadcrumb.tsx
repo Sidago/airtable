@@ -1,19 +1,15 @@
 "use client";
 
+import { BreadcrumbProps } from "@/types/breadcrumb";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 
-const BREADCRUMBS = [
-  { label: "Tom Silver", active: false },
-  { label: "Dashboard", active: true },
-];
 
-export default function Header() {
+export default function Breadcrumb({ items=[] }: BreadcrumbProps) {
   return (
-    <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200">
       <div className="flex items-center">
-        {BREADCRUMBS.map((crumb, index) => {
-          const isLast = index === BREADCRUMBS.length - 1;
+        {items.map((crumb, index) => {
+          const isLast = index === items.length - 1;
 
           return (
             <React.Fragment key={index}>
@@ -33,6 +29,5 @@ export default function Header() {
           );
         })}
       </div>
-    </div>
   );
 }

@@ -15,8 +15,8 @@ export default function Content() {
       <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200">
         <Breadcrumb
           items={[
-            { label: "Tom Silver", active: false },
-            { label: "Dashboard", active: true },
+            { label: "Auxiliary Staff", active: false },
+            { label: "Fix Leads (V4)", active: true },
           ]}
         />
       </div>
@@ -25,30 +25,27 @@ export default function Content() {
       <div className="w-full p-10">
         <div className="w-full space-y-5 mb-10">
           <div className="text-xl font-medium">
-            <p>{`Today's`} call report</p>
+            <p>Summary</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch">
-            <StatCard label="Number of Calls" count={10} />
-            <StatCard label="No Answer" count={10} />
-            <StatCard label="Left Message" count={10} />
-            <StatCard label="Interested" count={10} />
-            <StatCard label="Call Lead Back" count={10} />
-            <StatCard label="Bad Number" count={10} />
-            <StatCard label="Not Interested" count={10} />
-            <StatCard label="DNC" count={10} />
+            <StatCard label="Fix Queue" count={10} />
+            <StatCard label="24hr Sent to Fix" count={39} />
+            <StatCard label="24hr Fixed" count={25} />
+            <StatCard label="24hr New" count={14} />
+            <StatCard label="24hr Can't Locate" count={20} />
           </div>
         </div>
         <Divider />
         <div className="w-full space-y-5 mt-10 mb-10">
           <div className="text-xl font-medium">
-            <p>Call Details</p>
+            <p>Fix Queue</p>
           </div>
           <div>
             {/* sort and filters */}
             <div className="flex items-center gap-4">
               <Select
                 wrapperClassName="w-40"
-                placeholder="Lead Type"
+                placeholder="Contact Filter"
                 searchable
                 multiple
                 options={[
@@ -64,7 +61,7 @@ export default function Content() {
               />
               <Select
                 wrapperClassName="w-40"
-                placeholder="Call Result"
+                placeholder="Has Other Contact"
                 searchable
                 multiple
                 options={[
@@ -78,44 +75,9 @@ export default function Content() {
                   },
                 ]}
               />
-            </div>
-            {/* Table/Grid */}
-            <div className="py-5">
-              <Table
-                data={users}
-                columns={columns}
-                onRowClick={(row) => console.log("Row clicked", row)}
-              />
-            </div>
-          </div>
-        </div>
-        <Divider />
-        <div className="w-full space-y-5 mt-10 mb-10">
-          <div className="text-xl font-medium">
-            <p>Currently Assigned Leads</p>
-          </div>
-          <div>
-            {/* sort and filters */}
-            <div className="flex items-center gap-4">
               <Select
                 wrapperClassName="w-40"
-                placeholder="Lead Type"
-                searchable
-                multiple
-                options={[
-                  {
-                    label: "Hot",
-                    value: "hot",
-                  },
-                  {
-                    label: "General",
-                    value: "general",
-                  },
-                ]}
-              />
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Call Result"
+                placeholder="Timezone"
                 searchable
                 multiple
                 options={[
@@ -153,24 +115,22 @@ interface AssignedLead {
   full_name: string;
   email: ReactNode;
   phone: string;
-  contact_type: ReactNode;
-  svg_lead_type: ReactNode;
-  svg_tobe_call: ReactNode;
-  last_action: string;
+  fix_lead: ReactNode;
+  other_contact:string | ReactNode;
+  fix_entry_date: string;
 }
 
 const columns: TableColumn<AssignedLead>[] = [
-  { key: "lead_id", label: "Lead ID", width: 80 },
-  { key: "timezone", label: "Timezone", width: 100 },
-  { key: "company_symbol", label: "Company Symbol", width: 80 },
+  { key: "lead_id", label: "Lead", width: 80 },
   { key: "company_name", label: "Company Name", width: 180 },
+  { key: "company_symbol", label: "Company Symbol", width: 80 },
+  { key: "timezone", label: "Timezone", width: 100 },
   { key: "full_name", label: "Full Name", width: 150 },
   { key: "email", label: "Email", width: 150 },
   { key: "phone", label: "Phone", width: 140 },
-  { key: "contact_type", label: "Contact Type", width: 120 },
-  { key: "svg_lead_type", label: "SVG - Lead Type", width: 80 },
-  { key: "svg_tobe_call", label: "SVG - To Be Call By", width: 80 },
-  { key: "last_action", label: "Last Action Date", width: 150 },
+  { key: "fix_lead", label: "Fixed Lead", width: 80 },
+  { key: "other_contact", label: "Other Contacts", width: 80 },
+  { key: "fix_entry_date", label: "Fix Entry Date", width: 150 },
 ];
 
 const TIMEZONEBADGE = {
@@ -203,74 +163,7 @@ const TIMEZONEBADGE = {
     </Badge>
   ),
 };
-const CONTACTBADGE = {
-  validated: (
-    <Badge>
-      <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        Validated
-      </span>
-    </Badge>
-  ),
-  pending: (
-    <Badge>
-      <span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        Pending
-      </span>
-    </Badge>
-  ),
-  rejected: (
-    <Badge>
-      <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        Rejected
-      </span>
-    </Badge>
-  ),
-};
 
-const TOBECALLBADGE = {
-  tom: (
-    <Badge>
-      <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        TOM SILVER
-      </span>
-    </Badge>
-  ),
-  alice: (
-    <Badge>
-      <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        ALICE SMITH
-      </span>
-    </Badge>
-  ),
-  bob: (
-    <Badge>
-      <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        BOB JOHNSON
-      </span>
-    </Badge>
-  ),
-  carol: (
-    <Badge>
-      <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        CAROL WHITE
-      </span>
-    </Badge>
-  ),
-  david: (
-    <Badge>
-      <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        DAVID KING
-      </span>
-    </Badge>
-  ),
-  linda: (
-    <Badge>
-      <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-2xl">
-        LINDA PARKER
-      </span>
-    </Badge>
-  ),
-};
 const COMPANYBADGE = {
   SKVI: (
     <Badge>
@@ -323,12 +216,24 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.SKVI,
     company_name: "Skinvisible, Inc.",
     full_name: "Terry Howlett",
-    email: <Link className="text-blue-500 underline" href="mailto:terry@skinvisible.com">terry@skinvisible.com</Link>,
+    email: (
+      <Link
+        className="text-blue-500 underline"
+        href="mailto:terry@skinvisible.com"
+      >
+        terry@skinvisible.com
+      </Link>
+    ),
     phone: "+1 (702) 433-7154",
-    contact_type: CONTACTBADGE.validated,
-    svg_lead_type: <Badge><span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">Hot</span></Badge>,
-    svg_tobe_call: TOBECALLBADGE.tom,
-    last_action: "22/12/2025 2:28pm",
+    fix_lead: (
+      <Badge>
+        <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">
+          Fix Lead
+        </span>
+      </Badge>
+    ),
+    other_contact:'-',
+    fix_entry_date: "22/12/2025 2:28pm",
   },
   {
     lead_id: "ACME - John Doe",
@@ -336,12 +241,21 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.ACME,
     company_name: "Acme Corporation",
     full_name: "John Doe",
-    email: <Link className="text-blue-500 underline" href="mailto:johndoe@acme.com">johndoe@acme.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:johndoe@acme.com">
+        johndoe@acme.com
+      </Link>
+    ),
     phone: "+1 (212) 555-1234",
-    contact_type: CONTACTBADGE.pending,
-    svg_lead_type: <Badge><span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-2xl">Warm</span></Badge>,
-    svg_tobe_call: TOBECALLBADGE.alice,
-    last_action: "01/01/2026 10:15am",
+    fix_lead: (
+      <Badge>
+        <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">
+          Fix Lead
+        </span>
+      </Badge>
+    ),
+    other_contact:'-',
+    fix_entry_date: "01/01/2026 10:15am",
   },
   {
     lead_id: "XYZ - Jane Smith",
@@ -349,12 +263,21 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.XYZ,
     company_name: "XYZ Solutions",
     full_name: "Jane Smith",
-    email: <Link className="text-blue-500 underline" href="mailto:jane@xyz.com">jane@xyz.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:jane@xyz.com">
+        jane@xyz.com
+      </Link>
+    ),
     phone: "+1 (415) 555-9876",
-    contact_type: CONTACTBADGE.validated,
-    svg_lead_type: <Badge><span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">Hot</span></Badge>,
-    svg_tobe_call: TOBECALLBADGE.bob,
-    last_action: "05/01/2026 4:45pm",
+    fix_lead: (
+      <Badge>
+        <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">
+          Fix Lead
+        </span>
+      </Badge>
+    ),
+    other_contact:'-',
+    fix_entry_date: "05/01/2026 4:45pm",
   },
   {
     lead_id: "LMN - Michael Brown",
@@ -362,12 +285,21 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.LMN,
     company_name: "LMN Enterprises",
     full_name: "Michael Brown",
-    email: <Link className="text-blue-500 underline" href="mailto:michael@lmn.com">michael@lmn.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:michael@lmn.com">
+        michael@lmn.com
+      </Link>
+    ),
     phone: "+1 (305) 555-6789",
-    contact_type: CONTACTBADGE.rejected,
-    svg_lead_type: <Badge><span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-2xl">Warm</span></Badge>,
-    svg_tobe_call: TOBECALLBADGE.carol,
-    last_action: "12/12/2025 1:00pm",
+    fix_lead: (
+      <Badge>
+        <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">
+          Fix Lead
+        </span>
+      </Badge>
+    ),
+    other_contact:'-',
+    fix_entry_date: "12/12/2025 1:00pm",
   },
   {
     lead_id: "OPQ - Sarah Lee",
@@ -375,12 +307,21 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.OPQ,
     company_name: "OPQ Tech",
     full_name: "Sarah Lee",
-    email: <Link className="text-blue-500 underline" href="mailto:sarah@opq.com">sarah@opq.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:sarah@opq.com">
+        sarah@opq.com
+      </Link>
+    ),
     phone: "+1 (646) 555-3344",
-    contact_type: CONTACTBADGE.validated,
-    svg_lead_type: <Badge><span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">Hot</span></Badge>,
-    svg_tobe_call: TOBECALLBADGE.david,
-    last_action: "03/01/2026 11:30am",
+    fix_lead: (
+      <Badge>
+        <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">
+          Fix Lead
+        </span>
+      </Badge>
+    ),
+    other_contact:'-',
+    fix_entry_date: "03/01/2026 11:30am",
   },
   {
     lead_id: "RST - William Johnson",
@@ -388,11 +329,20 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.RST,
     company_name: "RST Industries",
     full_name: "William Johnson",
-    email: <Link className="text-blue-500 underline" href="mailto:william@rst.com">william@rst.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:william@rst.com">
+        william@rst.com
+      </Link>
+    ),
     phone: "+1 (718) 555-7788",
-    contact_type: CONTACTBADGE.pending,
-    svg_lead_type: <Badge><span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-2xl">Warm</span></Badge>,
-    svg_tobe_call: TOBECALLBADGE.linda,
-    last_action: "04/01/2026 2:15pm",
+    fix_lead: (
+      <Badge>
+        <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">
+          Fix Lead
+        </span>
+      </Badge>
+    ),
+    other_contact:'-',
+    fix_entry_date: "04/01/2026 2:15pm",
   },
 ];

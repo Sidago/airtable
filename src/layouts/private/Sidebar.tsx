@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronsLeft, User } from "lucide-react";
+import { BookOpen, ChevronsLeft, User } from "lucide-react";
 import clsx from "clsx";
 import Dropdown from "@/components/shared/Dropdown";
 import Avatar from "@/components/shared/Avatar";
@@ -111,6 +111,43 @@ const MENUS: MenuItem[] = [
       { label: "Auto Mighty Call Tom", href: "/auto-call" },
       { label: "Leads Manual Update", href: "/leads-manual" },
       { label: "Dashboard", href: "/dashboard" },
+    ],
+  },
+  {
+    id: "auxiliary-staff",
+    label: (
+      <div className="flex items-center gap-1 text-white text-sm">
+        <BookOpen size={16} />
+        Auxiliary Staff
+      </div>
+    ),
+    routes: [
+      "/level-update",
+      "/level-history",
+      "/fix-lead",
+      "/sms",
+      "/email",
+      "/blocked-email",
+      "/add-company",
+      "/update-company",
+      "/leads",
+      "/additional-contact",
+      "/email-blacklist",
+      "/dead-email",
+    ],
+    submenus: [
+      { label: "Level 2 Update", href: "/level-update" },
+      { label: "Level 2 - History", href: "/level-history" },
+      { label: "Fix Leads(V4)", href: "/fix-lead" },
+      { label: "SMS - Tom Silver", href: "/sms" },
+      { label: "Email - Tom Silver", href: "/email" },
+      { label: "Blocked Email", href: "/blocked-email" },
+      { label: "Add Company", href: "/add-company" },
+      { label: "Update Company", href: "/update-company" },
+      { label: "All Leads", href: "/leads" },
+      { label: "Create Additional Contact", href: "/additional-contact" },
+      { label: "Email Blacklist Directory", href: "/email-blacklist" },
+      { label: "Dead/Missing Email", href: "/dead-email" },
     ],
   },
 ];
