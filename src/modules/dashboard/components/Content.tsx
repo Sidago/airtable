@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import StatCard from "@/components/shared/StatCard";
 import Divider from "@/components/shared/Divider";
 import Select from "@/components/shared/Select";
@@ -7,8 +7,17 @@ import Table, { TableColumn } from "@/components/table/Table";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import Badge from "@/components/shared/Badge";
 import Link from "next/link";
+import CommonDrawer from "@/helpers/CommonDrawer";
 
 export default function Content() {
+  const [drawer, setDrawer] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    setIsScrolled(scrollTop > 10);
+  };
+  
   return (
     <div className="relative min-h-screen">
       {/* Fixed header */}
@@ -84,7 +93,7 @@ export default function Content() {
               <Table
                 data={users}
                 columns={columns}
-                onRowClick={(row) => console.log("Row clicked", row)}
+                onRowClick={(row) => setDrawer(true)}
               />
             </div>
           </div>
@@ -135,12 +144,18 @@ export default function Content() {
               <Table
                 data={users}
                 columns={columns}
-                onRowClick={(row) => console.log("Row clicked", row)}
+                onRowClick={(row) => setDrawer(true)}
               />
             </div>
           </div>
         </div>
       </div>
+      <CommonDrawer
+        isOpen={drawer}
+        onClose={() => setDrawer(false)}
+        isScrolled={isScrolled}
+        onScroll={handleScroll}
+      />
     </div>
   );
 }
@@ -323,10 +338,23 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.SKVI,
     company_name: "Skinvisible, Inc.",
     full_name: "Terry Howlett",
-    email: <Link className="text-blue-500 underline" href="mailto:terry@skinvisible.com">terry@skinvisible.com</Link>,
+    email: (
+      <Link
+        className="text-blue-500 underline"
+        href="mailto:terry@skinvisible.com"
+      >
+        terry@skinvisible.com
+      </Link>
+    ),
     phone: "+1 (702) 433-7154",
     contact_type: CONTACTBADGE.validated,
-    svg_lead_type: <Badge><span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">Hot</span></Badge>,
+    svg_lead_type: (
+      <Badge>
+        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">
+          Hot
+        </span>
+      </Badge>
+    ),
     svg_tobe_call: TOBECALLBADGE.tom,
     last_action: "22/12/2025 2:28pm",
   },
@@ -336,10 +364,20 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.ACME,
     company_name: "Acme Corporation",
     full_name: "John Doe",
-    email: <Link className="text-blue-500 underline" href="mailto:johndoe@acme.com">johndoe@acme.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:johndoe@acme.com">
+        johndoe@acme.com
+      </Link>
+    ),
     phone: "+1 (212) 555-1234",
     contact_type: CONTACTBADGE.pending,
-    svg_lead_type: <Badge><span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-2xl">Warm</span></Badge>,
+    svg_lead_type: (
+      <Badge>
+        <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-2xl">
+          Warm
+        </span>
+      </Badge>
+    ),
     svg_tobe_call: TOBECALLBADGE.alice,
     last_action: "01/01/2026 10:15am",
   },
@@ -349,10 +387,20 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.XYZ,
     company_name: "XYZ Solutions",
     full_name: "Jane Smith",
-    email: <Link className="text-blue-500 underline" href="mailto:jane@xyz.com">jane@xyz.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:jane@xyz.com">
+        jane@xyz.com
+      </Link>
+    ),
     phone: "+1 (415) 555-9876",
     contact_type: CONTACTBADGE.validated,
-    svg_lead_type: <Badge><span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">Hot</span></Badge>,
+    svg_lead_type: (
+      <Badge>
+        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">
+          Hot
+        </span>
+      </Badge>
+    ),
     svg_tobe_call: TOBECALLBADGE.bob,
     last_action: "05/01/2026 4:45pm",
   },
@@ -362,10 +410,20 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.LMN,
     company_name: "LMN Enterprises",
     full_name: "Michael Brown",
-    email: <Link className="text-blue-500 underline" href="mailto:michael@lmn.com">michael@lmn.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:michael@lmn.com">
+        michael@lmn.com
+      </Link>
+    ),
     phone: "+1 (305) 555-6789",
     contact_type: CONTACTBADGE.rejected,
-    svg_lead_type: <Badge><span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-2xl">Warm</span></Badge>,
+    svg_lead_type: (
+      <Badge>
+        <span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-2xl">
+          Warm
+        </span>
+      </Badge>
+    ),
     svg_tobe_call: TOBECALLBADGE.carol,
     last_action: "12/12/2025 1:00pm",
   },
@@ -375,10 +433,20 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.OPQ,
     company_name: "OPQ Tech",
     full_name: "Sarah Lee",
-    email: <Link className="text-blue-500 underline" href="mailto:sarah@opq.com">sarah@opq.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:sarah@opq.com">
+        sarah@opq.com
+      </Link>
+    ),
     phone: "+1 (646) 555-3344",
     contact_type: CONTACTBADGE.validated,
-    svg_lead_type: <Badge><span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">Hot</span></Badge>,
+    svg_lead_type: (
+      <Badge>
+        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-2xl">
+          Hot
+        </span>
+      </Badge>
+    ),
     svg_tobe_call: TOBECALLBADGE.david,
     last_action: "03/01/2026 11:30am",
   },
@@ -388,10 +456,20 @@ const users: AssignedLead[] = [
     company_symbol: COMPANYBADGE.RST,
     company_name: "RST Industries",
     full_name: "William Johnson",
-    email: <Link className="text-blue-500 underline" href="mailto:william@rst.com">william@rst.com</Link>,
+    email: (
+      <Link className="text-blue-500 underline" href="mailto:william@rst.com">
+        william@rst.com
+      </Link>
+    ),
     phone: "+1 (718) 555-7788",
     contact_type: CONTACTBADGE.pending,
-    svg_lead_type: <Badge><span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-2xl">Warm</span></Badge>,
+    svg_lead_type: (
+      <Badge>
+        <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-2xl">
+          Warm
+        </span>
+      </Badge>
+    ),
     svg_tobe_call: TOBECALLBADGE.linda,
     last_action: "04/01/2026 2:15pm",
   },

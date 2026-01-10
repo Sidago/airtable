@@ -24,7 +24,7 @@ interface AvatarProps {
   style?: React.CSSProperties;
   border?: string;
 
-  initialsClassName?: string; 
+  initialsClassName?: string;
 
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
@@ -109,7 +109,7 @@ export default function Avatar({
             initialsClassName // <-- Apply custom initials classes here
           )}
         >
-          {initials}
+          {initials.trim()[0].toUpperCase()}
         </span>
       ) : (
         icon

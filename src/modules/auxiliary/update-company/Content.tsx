@@ -1,10 +1,19 @@
 "use client";
 import Header from "@/modules/auxiliary/components/Header";
 import Table, { TableColumn } from "@/components/table/Table";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import Badge from "@/components/shared/Badge";
+import CommonDrawer from "@/helpers/CommonDrawer";
 
 export default function Content() {
+  const [drawer, setDrawer] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    setIsScrolled(scrollTop > 10);
+  };
+
   const [data, setData] = React.useState<Lead[]>([]);
 
   React.useEffect(() => {
@@ -24,9 +33,15 @@ export default function Content() {
         <Table
           data={data}
           columns={columns}
-          onRowClick={(row) => console.log("Row clicked", row)}
+          onRowClick={(row) => setDrawer(true)}
         />
       </div>
+      <CommonDrawer
+        isOpen={drawer}
+        onClose={() => setDrawer(false)}
+        isScrolled={isScrolled}
+        onScroll={handleScroll}
+      />
     </div>
   );
 }
@@ -51,13 +66,17 @@ interface Lead {
   company_name: string;
   previous_company_name: string;
   histroy_log: string | ReactNode;
-  timezone:ReactNode;
+  timezone: ReactNode;
 }
 
 const columns: TableColumn<Lead>[] = [
   { key: "lead", label: "Lead ID", width: 80 },
   { key: "company_symbol", label: "Company Symbol", width: 80 },
-  { key: "previous_company_symbol", label: "Previous Company Symbol", width: 80 },
+  {
+    key: "previous_company_symbol",
+    label: "Previous Company Symbol",
+    width: 80,
+  },
   { key: "company_name", label: "Company Name", width: 180 },
   { key: "previous_company_name", label: "Previous Company Name", width: 180 },
   { key: "histroy_log", label: "History", width: 180 },

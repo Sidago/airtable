@@ -1,11 +1,15 @@
+import { ReactNode } from "react";
 export interface SubmenuItem {
-  label: string | React.ReactNode;
+  label: string | ReactNode;
   href: string;
 }
 
 export interface MenuItem {
   id?: string;
-  label: string | React.ReactNode;
+  icon: ReactNode;
+  label: string | ReactNode;
   routes: string[];
   submenus: SubmenuItem[];
+  collapsed?: boolean;
+  toggleCollapsed?: () => void;
 }

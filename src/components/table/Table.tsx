@@ -134,7 +134,7 @@ export default function Table<T>({
 
   return (
     <div className="flex flex-col w-full overflow-hidden">
-      <div className="relative w-full overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)]">
+      <div className="relative w-full overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)] scrollbar-custom">
         <table className={clsx("border-collapse w-max min-w-full", tableClassName)}>
           <thead className={clsx(stickyHeader && "sticky top-0 bg-gray-50 z-20", "border-b border-gray-200")}>
             <tr>
@@ -213,7 +213,7 @@ export default function Table<T>({
 
                         <div
                           onMouseDown={(e) => startRowResize(globalIndex, e)}
-                          className="absolute bottom-0 left-0 w-full h-1 cursor-row-resize bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          className="absolute bottom-0 left-0 w-full h-0.5 cursor-row-resize bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                         />
                       </td>
                     ))}

@@ -1,11 +1,20 @@
 "use client";
 import Header from "@/modules/auxiliary/components/Header";
 import Table, { TableColumn } from "@/components/table/Table";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import Badge from "@/components/shared/Badge";
 import Link from "next/link";
+import CommonDrawer from "@/helpers/CommonDrawer";
 
 export default function Content() {
+  const [drawer, setDrawer] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    setIsScrolled(scrollTop > 10);
+  };
+
   const [data, setData] = React.useState<Lead[]>([]);
 
   React.useEffect(() => {
@@ -25,9 +34,15 @@ export default function Content() {
         <Table
           data={data}
           columns={columns}
-          onRowClick={(row) => console.log("Row clicked", row)}
+          onRowClick={(row) => setDrawer(true)}
         />
       </div>
+      <CommonDrawer
+        isOpen={drawer}
+        onClose={() => setDrawer(false)}
+        isScrolled={isScrolled}
+        onScroll={handleScroll}
+      />
     </div>
   );
 }
@@ -296,7 +311,8 @@ const generateLeads = (count = 20): Lead[] => {
       benton_lead_type: pickRandom(TYPES),
       rm_lead_type: pickRandom(TYPES),
       svg_history_call_notes: "Ryan Eagle - Not Working There - 10/8/2025",
-      benton_history_call_notes: "9/1/2025 - Not Interested Re-Integration 3+ Months",
+      benton_history_call_notes:
+        "9/1/2025 - Not Interested Re-Integration 3+ Months",
     };
   });
 };

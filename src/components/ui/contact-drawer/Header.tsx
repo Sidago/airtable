@@ -1,7 +1,15 @@
 "use client";
 import { ChevronDown, ChevronUp, Link, Printer, X } from "lucide-react";
 
-export default function Header({ scrolled, label }: { scrolled: boolean, label:string }) {
+export default function Header({
+  scrolled,
+  label,
+  onClose,
+}: {
+  scrolled: boolean;
+  label: string;
+  onClose: () => void;
+}) {
   return (
     <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200 flex justify-between items-center">
       <div className="flex items-center gap-4">
@@ -22,7 +30,7 @@ export default function Header({ scrolled, label }: { scrolled: boolean, label:s
         <button className="w-6 h-6 rounded flex items-center justify-center cursor-pointer hover:bg-gray-100">
           <Link size={14} />
         </button>
-        <button className="w-6 h-6 rounded flex items-center justify-center cursor-pointer hover:bg-gray-100">
+        <button onClick={onClose} className="w-6 h-6 rounded flex items-center justify-center cursor-pointer hover:bg-gray-100">
           <X size={16} />
         </button>
       </div>

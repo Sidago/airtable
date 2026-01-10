@@ -5,7 +5,14 @@ import Item from "./Item";
 import { MenuItem } from "@/types/menu";
 import useActiveRoute from "@/hooks/useActiveRoute";
 
-export default function Menu({ label, routes, submenus = [] }: MenuItem) {
+export default function Menu({
+  collapsed,
+  toggleCollapsed,
+  icon,
+  label,
+  routes,
+  submenus = [],
+}: MenuItem) {
   const { isRouteExist } = useActiveRoute();
   const active = isRouteExist(routes);
 
@@ -28,24 +35,37 @@ export default function Menu({ label, routes, submenus = [] }: MenuItem) {
     <div ref={menuRef} className="w-full">
       {/* Trigger */}
       <button
-        onClick={() => setOpen((p) => !p)}
-        className="w-full flex items-center justify-between px-1 mb-2 cursor-pointer"
+        onClick={() => !collapsed && setOpen((p) => !p)}
+        className={clsx(
+          "w-full flex items-center px-2 mb-2 cursor-pointer",
+          collapsed ? "justify-center" : "justify-between"
+        )}
       >
-        <div className="flex-1 text-left">
-          {typeof label === "string" ? (
-            <span className="text-sm text-white font-medium">{label}</span>
-          ) : (
-            label
+        {/* Icon + Label */}
+        <div className="flex items-center gap-2 text-white">
+          {icon && (
+            <span
+              onClick={() => {
+                if (collapsed && toggleCollapsed) toggleCollapsed();
+              }}
+            >
+              {icon}
+            </span>
           )}
+
+          {!collapsed && <span className="text-sm font-medium">{label}</span>}
         </div>
 
-        <ChevronRight
-          size={16}
-          className={clsx(
-            "text-white/80 transition-transform duration-200 shrink-0",
-            open && "rotate-90"
-          )}
-        />
+        {/* Arrow (hide when collapsed) */}
+        {!collapsed && (
+          <ChevronRight
+            size={16}
+            className={clsx(
+              "text-white/80 transition-transform duration-200",
+              open && "rotate-90"
+            )}
+          />
+        )}
       </button>
 
       {/* Animated Content */}
