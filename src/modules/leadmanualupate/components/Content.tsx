@@ -1,12 +1,43 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { RotateCcw, UserLock } from "lucide-react";
 import Input from "@/components/shared/Input";
 import Select from "@/components/shared/Select";
 import DateInput from "@/components/shared/DateInput";
 import Checkbox from "@/components/shared/Checkbox";
 
+interface FormValues {
+  lead: string;
+  resultUpdate: string;
+  toBeCalledOnDate: Date | null;
+  toBeCalledOnSelect: string;
+  campaignType: string;
+  toBeLogged: boolean;
+  notes: string;
+}
+
+const DEFAULT_FORM: FormValues = {
+  lead: "",
+  resultUpdate: "",
+  toBeCalledOnDate: null,
+  toBeCalledOnSelect: "",
+  campaignType: "",
+  toBeLogged: false,
+  notes: "",
+};
+
 export default function Content() {
+  const [formValues, setFormValues] = useState<FormValues>(DEFAULT_FORM);
+
+  const handleInputChange = (name: keyof FormValues, value: any) => {
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleClearForm = () => {
+    setFormValues(DEFAULT_FORM);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* main content */}
@@ -30,14 +61,19 @@ export default function Content() {
                 { label: "Active", value: "active" },
                 { label: "Inactive", value: "inactive" },
               ]}
+              value={formValues.lead}
+              onChange={(v: string | string[]) =>
+                handleInputChange("lead", Array.isArray(v) ? v[0] : v)
+              }
               rules={[
                 {
                   type: "custom",
-                  validator: (v) => v !== "inactive",
+                  validator: (v) => (Array.isArray(v) ? v[0] : v) !== "inactive",
                   message: "Inactive not allowed",
                 },
               ]}
             />
+
             <Input
               label={
                 <span className="flex flex-col">
@@ -48,61 +84,72 @@ export default function Content() {
                 </span>
               }
               type="text"
+              value={formValues.resultUpdate}
+              onChange={(v: string) => handleInputChange("resultUpdate", v)}
               iconClassName="text-gray-500"
               rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
             />
+
             <DateInput
               label={
                 <span className="flex flex-col">
                   <span>To be called on</span>
                   <span className="font-normal mb-1">
-                    If you have set up a call with the client , place it here
+                    If you have set up a call with the client, place it here
                   </span>
                 </span>
               }
+              value={formValues.toBeCalledOnDate}
+              onChange={(date) => handleInputChange("toBeCalledOnDate", date)}
             />
+
             <Select
               label={
                 <span className="flex flex-col mt-0.5">
                   <span>To be called on</span>
-                  <span className="font-normal mb-2.5 invisible">
-                    placeholder
-                  </span>
+                  <span className="font-normal mb-2.5 invisible">placeholder</span>
                 </span>
               }
               options={[
                 { label: "Active", value: "active" },
                 { label: "Inactive", value: "inactive" },
               ]}
-              rules={[
-                {
-                  type: "custom",
-                  validator: (v) => v !== "inactive",
-                  message: "Inactive not allowed",
-                },
-              ]}
+              value={formValues.toBeCalledOnSelect}
+              onChange={(v: string | string[]) =>
+                handleInputChange(
+                  "toBeCalledOnSelect",
+                  Array.isArray(v) ? v[0] : v
+                )
+              }
             />
+
             <Select
               label="Campaign Type"
               options={[
                 { label: "Active", value: "active" },
                 { label: "Inactive", value: "inactive" },
               ]}
-              rules={[
-                {
-                  type: "custom",
-                  validator: (v) => v !== "inactive",
-                  message: "Inactive not allowed",
-                },
-              ]}
+              value={formValues.campaignType}
+              onChange={(v: string | string[]) =>
+                handleInputChange("campaignType", Array.isArray(v) ? v[0] : v)
+              }
             />
-            <Checkbox label="To be Logged" labelPosition="bottom" />
+
+            <Checkbox
+              label="To be Logged"
+              labelPosition="bottom"
+              value={formValues.toBeLogged}
+              onChange={(checked) => handleInputChange("toBeLogged", checked)}
+            />
           </div>
+
           <div className="grid grid-cols-1 gap-4 items-stretch mt-5">
             <Input
               label="Notes"
               as="textarea"
               rows={5}
+              value={formValues.notes}
+              onChange={(v: string) => handleInputChange("notes", v)}
               iconClassName="text-gray-500"
               rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
             />
@@ -121,12 +168,15 @@ export default function Content() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-1 text-blue-400">
+            <button
+              onClick={handleClearForm}
+              className="flex items-center gap-1 text-blue-400 cursor-pointer"
+            >
               <RotateCcw size={16} />
               <span className="text-xs font-normal">Clear form</span>
             </button>
 
-            <button className="bg-gray-400 px-2 py-1 rounded text-xs text-white font-semibold">
+            <button className="bg-gray-400 px-2 py-1 rounded text-xs text-white font-semibold cursor-pointer">
               Update
             </button>
           </div>

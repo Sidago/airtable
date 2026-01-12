@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import Header from "./Header";
@@ -9,6 +10,7 @@ import AddLeadHeader from "@/modules/lead/components/add/Header";
 import AddLeadFooter from "@/modules/lead/components/add/Footer";
 import dynamic from "next/dynamic";
 import DateInput from "@/components/shared/DateInput";
+
 const Drawer = dynamic(() => import("@/components/shared/Drawer"), {
   ssr: false,
 });
@@ -19,14 +21,74 @@ const Select = dynamic(() => import("@/components/shared/Select"), {
   ssr: false,
 });
 
+const DEFAULT_FORM = {
+  name: "",
+  role: "",
+  company: "",
+  phone: "",
+  email: "",
+  followUpDate: null as Date | null,
+  assignedTo: "",
+  leadType: "",
+  contactType: "",
+  dateBecameHot: null as Date | null,
+};
+
 export default function Sidebar() {
-  const [drawer, setDrawer] = useState(false);
+  const [drawer, setDrawer] = useState<boolean>(false);
+  const [searchKey, setSearchKey] = useState<string>("");
+  const [menus, setMenus] = useState<MenuProps[]>(MENUS);
+  const [formValues, setFormValues] = useState(DEFAULT_FORM);
+
+  const searchMenusByKeyword = (keyword: string) => {
+    setSearchKey(keyword);
+    if (!keyword) {
+      setMenus(MENUS); // reset if empty
+      return;
+    }
+
+    const lowerKeyword = keyword.toLowerCase();
+
+    const filtered = MENUS.map((menu) => {
+      if (!menu.children) return null;
+
+      const filteredChildren = menu.children
+        .map((child) => {
+          if (!child.children) return null;
+
+          const filteredGrandchildren = child.children.filter((grandchild) =>
+            grandchild.label.toLowerCase().includes(lowerKeyword)
+          );
+
+          return filteredGrandchildren.length
+            ? { ...child, children: filteredGrandchildren }
+            : null;
+        })
+        .filter(Boolean) as typeof menu.children;
+
+      return filteredChildren.length
+        ? { ...menu, children: filteredChildren }
+        : null;
+    }).filter(Boolean) as typeof MENUS;
+
+    setMenus(filtered);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawer(false);
+    setFormValues(DEFAULT_FORM); // reset form
+  };
+
+  const handleInputChange = (name: string, value: any) => {
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div className="w-80 h-screen bg-white border-r border-gray-200 flex flex-col">
       <Header onClick={() => setDrawer(true)} />
-      <SearchArea />
+      <SearchArea value={searchKey} onChange={searchMenusByKeyword} />
       <div className="flex-1 overflow-y-auto">
-        {MENUS.map((menu, idx) => (
+        {menus.map((menu, idx) => (
           <Menu key={idx} {...menu} />
         ))}
       </div>
@@ -34,16 +96,18 @@ export default function Sidebar() {
         width="w-2xl"
         height="h-full"
         isOpen={drawer}
-        onClose={() => setDrawer(false)}
+        onClose={handleDrawerClose}
       >
         <div className="flex flex-col h-full">
-          <AddLeadHeader onClose={() => setDrawer(false)} />
+          <AddLeadHeader onClose={handleDrawerClose} />
           <div className="flex-1 overflow-y-auto scrollbar-custom p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
               <Input
                 label="Name"
                 type="text"
                 iconClassName="text-gray-500"
+                value={formValues.name}
+                onChange={(v: string) => handleInputChange("name", v)}
                 rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
                 required
               />
@@ -54,6 +118,10 @@ export default function Sidebar() {
                   { label: "Active", value: "active" },
                   { label: "Inactive", value: "inactive" },
                 ]}
+                value={formValues.role}
+                onChange={(v: string | string[]) =>
+                  handleInputChange("role", Array.isArray(v) ? v[0] : v)
+                }
                 rules={[
                   {
                     type: "custom",
@@ -69,6 +137,10 @@ export default function Sidebar() {
                   { label: "Active", value: "active" },
                   { label: "Inactive", value: "inactive" },
                 ]}
+                value={formValues.company}
+                onChange={(v: string | string[]) =>
+                  handleInputChange("company", Array.isArray(v) ? v[0] : v)
+                }
                 rules={[
                   {
                     type: "custom",
@@ -82,16 +154,25 @@ export default function Sidebar() {
                 required
                 type="text"
                 iconClassName="text-gray-500"
+                value={formValues.phone}
+                onChange={(v: string) => handleInputChange("phone", v)}
                 rules={[{ type: "required" }, { type: "minLength", value: 8 }]}
               />
               <Input
                 label="Email"
                 type="text"
                 iconClassName="text-gray-500"
+                value={formValues.email}
+                onChange={(v: string) => handleInputChange("email", v)}
                 rules={[{ type: "required" }, { type: "minLength", value: 8 }]}
               />
-              <DateInput label="Follow Up Date" />
+              <DateInput
+                label="Follow Up Date"
+                value={formValues.followUpDate}
+                onChange={(date) => handleInputChange("followUpDate", date)}
+              />
             </div>
+
             <div>
               <p className="text-sm font-semibold mt-5 mb-5">
                 Default Option - cannot be changed
@@ -103,6 +184,8 @@ export default function Sidebar() {
                     { label: "Active", value: "active" },
                     { label: "Inactive", value: "inactive" },
                   ]}
+                  value={formValues.assignedTo}
+                  onChange={(v) => handleInputChange("assignedTo", v)}
                   rules={[
                     {
                       type: "custom",
@@ -117,6 +200,8 @@ export default function Sidebar() {
                     { label: "Active", value: "active" },
                     { label: "Inactive", value: "inactive" },
                   ]}
+                  value={formValues.leadType}
+                  onChange={(v) => handleInputChange("leadType", v)}
                   rules={[
                     {
                       type: "custom",
@@ -131,6 +216,8 @@ export default function Sidebar() {
                     { label: "Active", value: "active" },
                     { label: "Inactive", value: "inactive" },
                   ]}
+                  value={formValues.contactType}
+                  onChange={(v) => handleInputChange("contactType", v)}
                   rules={[
                     {
                       type: "custom",
@@ -139,11 +226,15 @@ export default function Sidebar() {
                     },
                   ]}
                 />
-                <DateInput label="Date Became Hot" />
+                <DateInput
+                  label="Date Became Hot"
+                  value={formValues.dateBecameHot}
+                  onChange={(date) => handleInputChange("dateBecameHot", date)}
+                />
               </div>
             </div>
           </div>
-          <AddLeadFooter />
+          <AddLeadFooter clearForm={() => setFormValues(DEFAULT_FORM)} />
         </div>
       </Drawer>
     </div>

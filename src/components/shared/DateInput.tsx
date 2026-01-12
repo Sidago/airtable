@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -8,6 +8,10 @@ interface DateInputProps {
   required?: boolean;
   containerClassName?: string;
   datePickerClassName?: string;
+
+  // Controlled props
+  value?: Date | null;
+  onChange?: (date: Date | null) => void;
 }
 
 export default function DateInput({
@@ -16,9 +20,9 @@ export default function DateInput({
   required = false,
   containerClassName = "flex flex-col",
   datePickerClassName = "w-full border border-gray-200 rounded outline-0 px-2 py-0.5",
+  value,
+  onChange,
 }: DateInputProps) {
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-
   return (
     <div className={containerClassName}>
       {label && (
@@ -29,8 +33,8 @@ export default function DateInput({
       )}
 
       <DatePicker
-        selected={startDate}
-        onChange={(date: Date | null) => setStartDate(date)}
+        selected={value ?? null} // use controlled value
+        onChange={onChange} // call parent handler
         className={datePickerClassName}
       />
     </div>

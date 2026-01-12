@@ -223,6 +223,7 @@ export default function Content() {
       >
         <div className="flex flex-col h-full">
           <Header
+            onClose={() => setDrawer(false)}
             scrolled={isScrolled}
             label="NASDAQ : FRPT - Mr. Scott James Morris"
           />

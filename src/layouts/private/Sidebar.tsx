@@ -30,8 +30,6 @@ export default function Sidebar() {
     }
   }, [collapsed]);
 
-  // Width of the sidebar depending on collapsed state
-  const sidebarWidth = collapsed ? 64 : 272; // px: 16*4=64, 68*4=272 (Tailwind multiples)
 
   return (
     <aside
@@ -52,7 +50,7 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-custom px-4 space-y-1">
         {menus.map((menu, idx) => (
           <Menu
             key={idx}
