@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { SubmenuItem } from "@/types/menu";
 import clsx from "clsx";
-import useActiveRoute from "@/hooks/useActiveRoute";
+import useMenuTree from "@/modules/navigation/hooks/useMenuTree";
 
 export default function Item({ label, href }: SubmenuItem) {
-  const { isActive } = useActiveRoute();
-  const active = isActive(href);
+  const {activeTab} = useMenuTree();
+  const active = activeTab === href;
 
   return (
     <div className="relative ml-3 border-l border-gray-500 py-1">
