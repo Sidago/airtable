@@ -76,9 +76,9 @@ export default function Sidebar() {
         >
           {/* Profile Menu */}
           <HeadlessMenu as="div" className="relative">
-            <HeadlessMenuButton title={collapsed ? user?.name : ""}>
+            <HeadlessMenuButton title={collapsed ? "Sidago" : ""}>
               <Avatar
-                initials={user?.name}
+                initials="Sidago"
                 size="xs"
                 shape="rounded-full"
                 initialsClassName="text-white text-sm bg-purple-500"
@@ -97,8 +97,8 @@ export default function Sidebar() {
               >
                 <div className="p-4">
                   <div className="flex flex-col gap-1 mb-2">
-                    <p className="text-xs font-medium">{user?.name}</p>
-                    <p className="text-xs font-medium">{user?.email}</p>
+                    <p className="text-xs font-medium">Sidago</p>
+                    <p className="text-xs font-medium">sidago@example.com</p>
                   </div>
                   <Divider />
                   <div className="flex flex-col">
