@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Input from "@/components/shared/Input";
 import { useAuth } from "../hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 interface Credentials {
   email: string;
@@ -11,6 +12,7 @@ interface Credentials {
 
 export default function Content() {
   const { login } = useAuth();
+  const router = useRouter();
   const [credentials, setCredentials] = useState<Credentials>({
     email: "",
     password: "",
@@ -23,8 +25,8 @@ export default function Content() {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!credentials.email || !credentials.password) return;
-
-    login.mutate(credentials);
+     router.push("/"); 
+    // login.mutate(credentials);
   };
 
   return (
@@ -68,7 +70,7 @@ export default function Content() {
 
           <button
             type="submit"
-            className="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+            className="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition cursor-pointer"
           >
             Sign In
           </button>
