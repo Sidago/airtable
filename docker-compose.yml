@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  nextjs-frontend-airtable:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs-frontend-airtable
+    env_file:
+      - .env
+    ports:
+      - "4001:4001"
+    restart: always
