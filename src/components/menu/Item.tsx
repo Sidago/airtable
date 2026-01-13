@@ -12,7 +12,7 @@ export default function Item({ label, href }: SubmenuItem) {
       <Link
         href={href}
         className={clsx(
-          "relative ml-2 py-1 px-2 text-white text-sm font-normal rounded transition-colors block",
+          "relative ml-2 py-1 px-2 text-black md:text-white text-sm font-normal rounded transition-colors block",
           "hover:bg-gray-500/40",
           active && "bg-gray-500/40"
         )}

@@ -1,21 +1,25 @@
 "use client";
 
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import Divider from "@/components/shared/Divider";
 import StatCard from "@/components/shared/StatCard";
-import Header from "@/modules/auxiliary/components/Header";
 import React from "react";
 
 export default function Content() {
   return (
-    <div>
-      <Header
-        breadcrumbs={[
-          { label: "Reports", active: false },
-          { label: "Leaderborad", active: true },
-        ]}
-      />
-      {/* Main content */}
-      <div className="w-full p-10">
+    <div className="h-screen flex flex-col bg-gray-50">
+      {/* Fixed header */}
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 p-4">
+        <Breadcrumb
+          items={[
+            { label: "Reports", active: false },
+            { label: "Leaderboard", active: true },
+          ]}
+        />
+      </div>
+
+      {/* Scrollable main content */}
+      <div className="flex-1 overflow-y-auto p-10">
         <div className="w-full space-y-5 mb-10">
           <div className="text-xl font-medium">
             <p>{`Today's`} Winner</p>
@@ -41,7 +45,9 @@ export default function Content() {
             />
           </div>
         </div>
+
         <Divider />
+
         <div className="w-full space-y-5 mt-10 mb-10">
           <div className="text-xl font-medium">
             <p>Tom Silver</p>
@@ -52,7 +58,9 @@ export default function Content() {
             <StatCard label="Current Hot Leads" count={8} />
           </div>
         </div>
+
         <Divider />
+
         <div className="w-full space-y-5 mt-10 mb-10">
           <div className="text-xl font-medium">
             <p>Mariz Cabido</p>
@@ -63,7 +71,9 @@ export default function Content() {
             <StatCard label="Current Hot Leads" count={8} />
           </div>
         </div>
+
         <Divider />
+
         <div className="w-full space-y-5 mt-10 mb-10">
           <div className="text-xl font-medium">
             <p>Chris Moore</p>
@@ -74,7 +84,9 @@ export default function Content() {
             <StatCard label="Current Hot Leads" count={8} />
           </div>
         </div>
+
         <Divider />
+
         <div className="w-full space-y-5 mt-10 mb-10">
           <div className="text-xl font-medium">
             <p>Bryan Miller</p>

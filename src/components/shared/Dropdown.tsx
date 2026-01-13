@@ -83,7 +83,7 @@ export default function Dropdown({
 
       <MenuItems
         className={clsx(
-          "absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg p-1 text-sm outline-0",
+          "absolute z-50 right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg p-1 text-sm outline-0",
           menuClassName
         )}
       >

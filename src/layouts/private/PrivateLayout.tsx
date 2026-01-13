@@ -4,11 +4,11 @@ import React, { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 
-const Sidebar = dynamic(() => import("./Sidebar"), {
+const Sidebar = dynamic(() => import("@/modules/navigation/components/Sidebar"), {
   ssr: false, // or remove if SSR is fine
 });
 
-const MobileSidebar = dynamic(() => import("./MobileSidebar"), {
+const MobileSidebar = dynamic(() => import("@/modules/navigation/components/MobileSidebar"), {
   ssr: false, // optional
 });
 
@@ -25,7 +25,7 @@ export default function PrivateLayout({ children }: { children: ReactNode }) {
 
           {/* Main Content */}
           <div className="flex flex-col flex-1 mt-12 md:mt-0 min-w-0">
-            <main className="flex-1 overflow-y-auto overflow-x-hidden">
+            <main className="flex-1 overflow-hidden">
               {children}
             </main>
           </div>

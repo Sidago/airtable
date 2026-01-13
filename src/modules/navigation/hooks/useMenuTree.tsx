@@ -12,6 +12,11 @@ export const CRMAGENT = [
   { crm_id: CRM_ID, id: "mariz-cabido", label: "Mariz Cabido" },
   { crm_id: CRM_ID, id: "alex-grant", label: "Alex Grant" },
   { crm_id: CRM_ID, id: "sophia-rivera", label: "Sophia Rivera" },
+
+  { crm_id: CRM_ID, id: "luna-miles", label: "Luna Miles" },
+  { crm_id: CRM_ID, id: "david-benson", label: "David Benson" },
+  { crm_id: CRM_ID, id: "nathan-cole", label: "Nathan Cole" },
+  { crm_id: CRM_ID, id: "amelia-thorne", label: "Amelia Thorne" },
 ];
 
 const AGENT_MENU_ITEMS = [

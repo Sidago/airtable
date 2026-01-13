@@ -33,8 +33,8 @@ export default function Content() {
           <Heading />
 
           {/* Scrollable Content */}
-          <main className="flex-1 overflow-y-auto scrollbar-custom">
-            {/* your page content here */}
+          <main className="flex-1 overflow-y-auto mb-10 md:mb-0">
+            {/* main content */}
             <div className="p-10 space-y-10 max-w-6xl mx-auto">
               <div className="text-base font-semibold flex items-center gap-4">
                 NASDAQ : FRPT - Mr. Christopher Kraus
@@ -228,7 +228,7 @@ export default function Content() {
             label="NASDAQ : FRPT - Mr. Scott James Morris"
           />
           <div
-            className="flex-1 overflow-y-auto scrollbar-custom"
+            className="flex-1 overflow-y-auto"
             onScroll={handleScroll}
           >
             <section className="p-10 space-y-10">

@@ -85,7 +85,7 @@ export default function Content() {
         ]}
       />
 
-      <div className="py-5">
+      <div className="py-5 px-4 md:px-0">
         <Table
           data={data}
           columns={columns}

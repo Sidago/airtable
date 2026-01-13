@@ -17,11 +17,11 @@ export default function Content() {
     const { scrollTop } = e.currentTarget;
     setIsScrolled(scrollTop > 10);
   };
-  
+
   return (
-    <div className="relative min-h-screen">
-      {/* Fixed header */}
-      <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200">
+    <div className="flex flex-col h-screen">
+      {/* Fixed Header */}
+      <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200 flex items-center">
         <Breadcrumb
           items={[
             { label: "Tom Silver", active: false },
@@ -30,8 +30,8 @@ export default function Content() {
         />
       </div>
 
-      {/* Main content */}
-      <div className="w-full p-10">
+      {/* Scrollable Main Content */}
+      <div className="flex-1 overflow-y-auto p-10" onScroll={handleScroll}>
         <div className="w-full space-y-5 mb-10">
           <div className="text-xl font-medium">
             <p>{`Today's`} call report</p>
@@ -47,109 +47,91 @@ export default function Content() {
             <StatCard label="DNC" count={10} />
           </div>
         </div>
+
         <Divider />
+
         <div className="w-full space-y-5 mt-10 mb-10">
           <div className="text-xl font-medium">
             <p>Call Details</p>
           </div>
+
           <div>
-            {/* sort and filters */}
             <div className="flex items-center gap-4">
               <Select
                 wrapperClassName="w-40"
                 placeholder="Lead Type"
+                options={[
+                  { label: "Hot", value: "hot" },
+                  { label: "General", value: "general" },
+                ]}
                 searchable
                 multiple
-                options={[
-                  {
-                    label: "Hot",
-                    value: "hot",
-                  },
-                  {
-                    label: "General",
-                    value: "general",
-                  },
-                ]}
               />
               <Select
                 wrapperClassName="w-40"
                 placeholder="Call Result"
+                options={[
+                  { label: "Interested", value: "hot" },
+                  { label: "No answer", value: "general" },
+                ]}
                 searchable
                 multiple
-                options={[
-                  {
-                    label: "Interested",
-                    value: "hot",
-                  },
-                  {
-                    label: "No answer",
-                    value: "general",
-                  },
-                ]}
               />
             </div>
-            {/* Table/Grid */}
-            <div className="py-5">
+
+            <div className="py-5 px-4 md:px-0">
               <Table
                 data={users}
                 columns={columns}
-                onRowClick={(row) => setDrawer(true)}
+                onRowClick={() => setDrawer(true)}
               />
             </div>
           </div>
         </div>
+
         <Divider />
+
         <div className="w-full space-y-5 mt-10 mb-10">
           <div className="text-xl font-medium">
             <p>Currently Assigned Leads</p>
           </div>
+
           <div>
-            {/* sort and filters */}
             <div className="flex items-center gap-4">
               <Select
                 wrapperClassName="w-40"
                 placeholder="Lead Type"
+                options={[
+                  { label: "Hot", value: "hot" },
+                  { label: "General", value: "general" },
+                ]}
                 searchable
                 multiple
-                options={[
-                  {
-                    label: "Hot",
-                    value: "hot",
-                  },
-                  {
-                    label: "General",
-                    value: "general",
-                  },
-                ]}
               />
               <Select
                 wrapperClassName="w-40"
                 placeholder="Call Result"
+                options={[
+                  { label: "Interested", value: "hot" },
+                  { label: "No answer", value: "general" },
+                ]}
                 searchable
                 multiple
-                options={[
-                  {
-                    label: "Interested",
-                    value: "hot",
-                  },
-                  {
-                    label: "No answer",
-                    value: "general",
-                  },
-                ]}
               />
             </div>
-            {/* Table/Grid */}
-            <div className="py-5">
+
+            <div className="py-5 px-4 md:px-0">
               <Table
                 data={users}
                 columns={columns}
-                onRowClick={(row) => setDrawer(true)}
+                onRowClick={() => setDrawer(true)}
               />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Drawer stays outside */}
       <CommonDrawer
         isOpen={drawer}
         onClose={() => setDrawer(false)}

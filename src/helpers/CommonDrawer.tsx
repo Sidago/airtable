@@ -34,7 +34,7 @@ export default function CommonDrawer({
             onClose={onClose}
           />
           <div
-            className="flex-1 overflow-y-auto scrollbar-custom"
+            className="flex-1 overflow-y-auto"
             onScroll={onScroll}
           >
             <section className="p-10 space-y-10">

@@ -56,7 +56,7 @@ export default function Menu({
           collapsed ? "justify-center" : "justify-between"
         )}
       >
-        <div className="flex items-center gap-2 text-white">
+        <div className="flex items-center gap-2 text-black md:text-white">
           {/* Icon */}
           {icon && (
             <span
@@ -76,7 +76,7 @@ export default function Menu({
           <ChevronRight
             size={16}
             className={clsx(
-              "text-white/80 transition-transform duration-200",
+              "text-black md:text-white/80 transition-transform duration-200",
               computedOpen && "rotate-90"
             )}
           />

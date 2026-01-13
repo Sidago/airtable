@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import React, { useState } from "react";
-import { RotateCcw, UserLock } from "lucide-react";
 import Input from "@/components/shared/Input";
 import Select from "@/components/shared/Select";
 import DateInput from "@/components/shared/DateInput";
 import Checkbox from "@/components/shared/Checkbox";
+import Footer from "./Footer";
 
 interface FormValues {
   lead: string;
@@ -39,20 +40,25 @@ export default function Content() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* main content */}
-      <div className="flex-1">
-        <div className="w-full max-w-4xl mx-auto px-5 py-8">
-          <p className="text-xl mt-10 mb-10">Leads Manual Update</p>
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* --- SCROLLABLE MAIN CONTENT --- */}
+      <main
+        className="flex-1 min-h-0 overflow-y-auto px-5 py-8 pb-36 md:pb-10"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <div className="w-full max-w-4xl mx-auto">
+          <p className="text-xl mt-10 mb-10 font-semibold text-gray-800">
+            Leads Manual Update
+          </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
             <Select
               label={
-                <span className="flex flex-col">
+                <span className="flex flex-col text-sm font-semibold">
                   <span>
                     Lead <span className="text-red-400">*</span>
                   </span>
-                  <span className="font-normal mb-1">
+                  <span className="font-normal text-gray-500 mb-1">
                     Choose the lead to update
                   </span>
                 </span>
@@ -68,7 +74,8 @@ export default function Content() {
               rules={[
                 {
                   type: "custom",
-                  validator: (v) => (Array.isArray(v) ? v[0] : v) !== "inactive",
+                  validator: (v) =>
+                    (Array.isArray(v) ? v[0] : v) !== "inactive",
                   message: "Inactive not allowed",
                 },
               ]}
@@ -76,11 +83,13 @@ export default function Content() {
 
             <Input
               label={
-                <span className="flex flex-col">
+                <span className="flex flex-col text-sm font-semibold">
                   <span>
                     Result Update <span className="text-red-400">*</span>
                   </span>
-                  <span className="font-normal mb-1">Log the result</span>
+                  <span className="font-normal text-gray-500 mb-1">
+                    Log the result
+                  </span>
                 </span>
               }
               type="text"
@@ -92,10 +101,10 @@ export default function Content() {
 
             <DateInput
               label={
-                <span className="flex flex-col">
+                <span className="flex flex-col text-sm font-semibold">
                   <span>To be called on</span>
-                  <span className="font-normal mb-1">
-                    If you have set up a call with the client, place it here
+                  <span className="font-normal text-gray-500 mb-1">
+                    If you have set up a call with the client
                   </span>
                 </span>
               }
@@ -105,14 +114,16 @@ export default function Content() {
 
             <Select
               label={
-                <span className="flex flex-col mt-0.5">
+                <span className="flex flex-col mt-0.5 text-sm font-semibold">
                   <span>To be called on</span>
-                  <span className="font-normal mb-2.5 invisible">placeholder</span>
+                  <span className="font-normal mb-2.5 invisible">
+                    placeholder
+                  </span>
                 </span>
               }
               options={[
-                { label: "Active", value: "active" },
-                { label: "Inactive", value: "inactive" },
+                { label: "Morning", value: "morning" },
+                { label: "Afternoon", value: "afternoon" },
               ]}
               value={formValues.toBeCalledOnSelect}
               onChange={(v: string | string[]) =>
@@ -124,10 +135,12 @@ export default function Content() {
             />
 
             <Select
-              label="Campaign Type"
+              label={
+                <span className="text-sm font-semibold">Campaign Type</span>
+              }
               options={[
-                { label: "Active", value: "active" },
-                { label: "Inactive", value: "inactive" },
+                { label: "Email", value: "email" },
+                { label: "Call", value: "call" },
               ]}
               value={formValues.campaignType}
               onChange={(v: string | string[]) =>
@@ -135,17 +148,19 @@ export default function Content() {
               }
             />
 
-            <Checkbox
-              label="To be Logged"
-              labelPosition="bottom"
-              value={formValues.toBeLogged}
-              onChange={(checked) => handleInputChange("toBeLogged", checked)}
-            />
+            <div className="flex items-end pb-2">
+              <Checkbox
+                label="To be Logged"
+                labelPosition="bottom"
+                value={formValues.toBeLogged}
+                onChange={(checked) => handleInputChange("toBeLogged", checked)}
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 items-stretch mt-5">
+          <div className="grid grid-cols-1 gap-4 items-stretch mt-8">
             <Input
-              label="Notes"
+              label={<span className="text-sm font-semibold">Notes</span>}
               as="textarea"
               rows={5}
               value={formValues.notes}
@@ -155,33 +170,12 @@ export default function Content() {
             />
           </div>
         </div>
-      </div>
-
-      {/* footer */}
-      <div className="bg-white border-t border-gray-200 mt-auto">
-        <div className="w-full flex justify-between items-center px-5 py-5 md:px-20">
-          <div className="flex items-center gap-1">
-            <UserLock size={16} className="text-red-400" />
-            <span className="text-xs font-normal">
-              You don’t have permission to add new records.
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleClearForm}
-              className="flex items-center gap-1 text-blue-400 cursor-pointer"
-            >
-              <RotateCcw size={16} />
-              <span className="text-xs font-normal">Clear form</span>
-            </button>
-
-            <button className="bg-gray-400 px-2 py-1 rounded text-xs text-white font-semibold cursor-pointer">
-              Update
-            </button>
-          </div>
-        </div>
-      </div>
+      </main>
+      <Footer
+        btnLabel="Update"
+        clearForm={handleClearForm}
+        onClick={() => console.log("clicked")}
+      />
     </div>
   );
 }

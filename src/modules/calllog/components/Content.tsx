@@ -31,7 +31,7 @@ export default function Content() {
           <Heading />
 
           {/* Scrollable Content */}
-          <main className="flex-1 overflow-y-auto scrollbar-custom">
+          <main className="flex-1 overflow-y-auto mb-10 md:mb-0">
             {/* your page content here */}
             <div className="p-10 space-y-10">
               {/* first row */}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { ReactNode, useState, useEffect } from "react";
+import React, { ReactNode, useState, useMemo } from "react";
 import clsx from "clsx";
 
 export interface TableColumn<T = any> {
@@ -40,29 +40,36 @@ export default function Table<T>({
   stickyHeader = true,
   onRowClick,
 }: TableProps<T>) {
-  // --- STATE ---
-  // Initialize column widths from props or default
-  const [colWidths, setColWidths] = useState<number[]>([]);
-  
-  // Use a Record for row heights to avoid "NaN" or "undefined" errors when data changes
+  // ===================== STATE =====================
+
+  // Derived from columns (no effect needed)
+  const initialWidths = useMemo(
+    () => columns.map((c) => c.width ?? 150),
+    [columns]
+  );
+
+  // User-resized dynamic widths
+  const [dynamicWidths, setDynamicWidths] = useState<number[] | null>(null);
+
+  // Use dynamic widths if present, otherwise fallback
+  const colWidths = dynamicWidths ?? initialWidths;
+
+  // Row heights stored per row index
   const [rowHeights, setRowHeights] = useState<Record<number, number>>({});
-  
+
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sync column widths if columns prop changes
-  useEffect(() => {
-    setColWidths(columns.map((c) => c.width || 150));
-  }, [columns]);
+  // ===================== DATA LOGIC =====================
 
-  // --- DATA LOGIC ---
   const startIndex = pagination ? (currentPage - 1) * pageSize : 0;
   const pageData = pagination
     ? data.slice(startIndex, startIndex + pageSize)
     : data;
   const totalPages = Math.ceil(data.length / pageSize);
 
-  // --- COLUMN RESIZE HANDLER ---
+  // ===================== COLUMN RESIZE =====================
+
   const startColResize = (index: number, e: React.MouseEvent) => {
     e.preventDefault();
     const startX = e.clientX;
@@ -71,8 +78,10 @@ export default function Table<T>({
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientX - startX;
       const newWidth = Math.max(50, startWidth + delta);
-      setColWidths((prev) => {
-        const copy = [...prev];
+
+      setDynamicWidths((prev) => {
+        const base = prev ?? initialWidths;
+        const copy = [...base];
         copy[index] = newWidth;
         return copy;
       });
@@ -87,17 +96,18 @@ export default function Table<T>({
     document.addEventListener("mouseup", onMouseUp);
   };
 
-  // --- ROW RESIZE HANDLER ---
+  // ===================== ROW RESIZE =====================
+
   const startRowResize = (globalIndex: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const startY = e.clientY;
-    // Fallback to 48 if no custom height exists yet
     const startHeight = rowHeights[globalIndex] || 48;
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientY - startY;
       const newHeight = Math.max(32, startHeight + delta);
+
       setRowHeights((prev) => ({
         ...prev,
         [globalIndex]: newHeight,
@@ -113,30 +123,38 @@ export default function Table<T>({
     document.addEventListener("mouseup", onMouseUp);
   };
 
-  // --- SELECTION HELPERS ---
+  // ===================== SELECTION =====================
+
   const toggleRow = (index: number) => {
-    const newSet = new Set(selectedRows);
-    if (newSet.has(index)) newSet.delete(index);
-    else newSet.add(index);
-    setSelectedRows(newSet);
+    const updated = new Set(selectedRows);
+    if (updated.has(index)) updated.delete(index);
+    else updated.add(index);
+    setSelectedRows(updated);
   };
 
   const toggleAll = () => {
     if (selectedRows.size === pageData.length) {
       setSelectedRows(new Set());
     } else {
-      const allIndexes = pageData.map((_, i) =>
+      const all = pageData.map((_, i) =>
         pagination ? startIndex + i : i
       );
-      setSelectedRows(new Set(allIndexes));
+      setSelectedRows(new Set(all));
     }
   };
 
+  // ===================== RENDER =====================
+
   return (
     <div className="flex flex-col w-full overflow-hidden">
-      <div className="relative w-full overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)] scrollbar-custom">
+      <div className="relative w-full overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)]">
         <table className={clsx("border-collapse w-max min-w-full", tableClassName)}>
-          <thead className={clsx(stickyHeader && "sticky top-0 bg-gray-50 z-20", "border-b border-gray-200")}>
+          <thead
+            className={clsx(
+              stickyHeader && "sticky top-0 bg-gray-50 z-20",
+              "border-b border-gray-200"
+            )}
+          >
             <tr>
               {selectable && (
                 <th className={clsx(cellClassName, "w-12")}>
@@ -147,11 +165,16 @@ export default function Table<T>({
                   />
                 </th>
               )}
+
               {columns.map((col, i) => (
                 <th
                   key={i}
-                  className={clsx("relative font-semibold text-left group select-none", cellClassName, col.className)}
-                  style={{ width: colWidths[i] || 150 }}
+                  className={clsx(
+                    "relative font-semibold text-left group select-none",
+                    cellClassName,
+                    col.className
+                  )}
+                  style={{ width: colWidths[i] }}
                 >
                   <div className="truncate">{col.label}</div>
                   <div
@@ -186,7 +209,6 @@ export default function Table<T>({
                       isSelected && "bg-blue-50",
                       rowClassName
                     )}
-                    // FIX: Safe fallback to 48px to prevent NaN errors
                     style={{ height: rowHeights[globalIndex] || 48 }}
                     onClick={() => onRowClick?.(row, globalIndex)}
                   >
@@ -205,11 +227,9 @@ export default function Table<T>({
                       <td
                         key={colIndex}
                         className={clsx(cellClassName, "relative truncate")}
-                        style={{ width: colWidths[colIndex] || 150 }}
+                        style={{ width: colWidths[colIndex] }}
                       >
-                        {col.render
-                          ? col.render(row, globalIndex)
-                          : (row[col.key] as ReactNode)}
+                        {col.render ? col.render(row, globalIndex) : (row[col.key] as ReactNode)}
 
                         <div
                           onMouseDown={(e) => startRowResize(globalIndex, e)}
@@ -230,6 +250,7 @@ export default function Table<T>({
           <div className="text-gray-500">
             Showing {startIndex + 1} to {Math.min(startIndex + pageSize, data.length)} of {data.length} entries
           </div>
+
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}

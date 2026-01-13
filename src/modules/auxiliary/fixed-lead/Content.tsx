@@ -10,9 +10,9 @@ import Link from "next/link";
 
 export default function Content() {
   return (
-    <div className="relative min-h-screen">
-      {/* Fixed header */}
-      <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200">
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 p-4">
         <Breadcrumb
           items={[
             { label: "Auxiliary Staff", active: false },
@@ -21,84 +21,80 @@ export default function Content() {
         />
       </div>
 
-      {/* Main content */}
-      <div className="w-full p-10">
-        <div className="w-full space-y-5 mb-10">
-          <div className="text-xl font-medium">
-            <p>Summary</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch">
-            <StatCard label="Fix Queue" count={10} />
-            <StatCard label="24hr Sent to Fix" count={39} />
-            <StatCard label="24hr Fixed" count={25} />
-            <StatCard label="24hr New" count={14} />
-            <StatCard label="24hr Can't Locate" count={20} />
-          </div>
-        </div>
-        <Divider />
-        <div className="w-full space-y-5 mt-10 mb-10">
-          <div className="text-xl font-medium">
-            <p>Fix Queue</p>
-          </div>
-          <div>
-            {/* sort and filters */}
-            <div className="flex items-center gap-4">
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Contact Filter"
-                searchable
-                multiple
-                options={[
-                  {
-                    label: "Hot",
-                    value: "hot",
-                  },
-                  {
-                    label: "General",
-                    value: "general",
-                  },
-                ]}
-              />
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Has Other Contact"
-                searchable
-                multiple
-                options={[
-                  {
-                    label: "Interested",
-                    value: "hot",
-                  },
-                  {
-                    label: "No answer",
-                    value: "general",
-                  },
-                ]}
-              />
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Timezone"
-                searchable
-                multiple
-                options={[
-                  {
-                    label: "Interested",
-                    value: "hot",
-                  },
-                  {
-                    label: "No answer",
-                    value: "general",
-                  },
-                ]}
-              />
+      {/* Scrollable Main Content */}
+      <div
+        className="flex-1 overflow-y-auto overscroll-y-contain"
+        style={{
+          WebkitOverflowScrolling: "touch", // smooth iOS scrolling
+        }}
+      >
+        <div className="w-full p-4">
+          <div className="w-full space-y-5 mb-10">
+            <div className="text-xl font-medium">
+              <p>Summary</p>
             </div>
-            {/* Table/Grid */}
-            <div className="py-5">
-              <Table
-                data={users}
-                columns={columns}
-                onRowClick={(row) => console.log("Row clicked", row)}
-              />
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch">
+              <StatCard label="Fix Queue" count={10} />
+              <StatCard label="24hr Sent to Fix" count={39} />
+              <StatCard label="24hr Fixed" count={25} />
+              <StatCard label="24hr New" count={14} />
+              <StatCard label="24hr Can't Locate" count={20} />
+            </div>
+          </div>
+
+          <Divider />
+
+          <div className="w-full space-y-5 mt-10 mb-10">
+            <div className="text-xl font-medium">
+              <p>Fix Queue</p>
+            </div>
+
+            {/* Filter Row */}
+            <div>
+              <div className="flex flex-wrap gap-4 mb-4">
+                <Select
+                  wrapperClassName="w-40"
+                  placeholder="Contact Filter"
+                  searchable
+                  multiple
+                  options={[
+                    { label: "Hot", value: "hot" },
+                    { label: "General", value: "general" },
+                  ]}
+                />
+
+                <Select
+                  wrapperClassName="w-40"
+                  placeholder="Has Other Contact"
+                  searchable
+                  multiple
+                  options={[
+                    { label: "Interested", value: "hot" },
+                    { label: "No answer", value: "general" },
+                  ]}
+                />
+
+                <Select
+                  wrapperClassName="w-40"
+                  placeholder="Timezone"
+                  searchable
+                  multiple
+                  options={[
+                    { label: "EST", value: "est" },
+                    { label: "PST", value: "pst" },
+                  ]}
+                />
+              </div>
+
+              {/* Table */}
+              <div className="py-5">
+                <Table
+                  data={users}
+                  columns={columns}
+                  onRowClick={(row) => console.log("Row clicked", row)}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -106,7 +102,6 @@ export default function Content() {
     </div>
   );
 }
-
 interface AssignedLead {
   lead_id: string;
   timezone: ReactNode;
@@ -116,7 +111,7 @@ interface AssignedLead {
   email: ReactNode;
   phone: string;
   fix_lead: ReactNode;
-  other_contact:string | ReactNode;
+  other_contact: string | ReactNode;
   fix_entry_date: string;
 }
 
@@ -232,7 +227,7 @@ const users: AssignedLead[] = [
         </span>
       </Badge>
     ),
-    other_contact:'-',
+    other_contact: "-",
     fix_entry_date: "22/12/2025 2:28pm",
   },
   {
@@ -254,7 +249,7 @@ const users: AssignedLead[] = [
         </span>
       </Badge>
     ),
-    other_contact:'-',
+    other_contact: "-",
     fix_entry_date: "01/01/2026 10:15am",
   },
   {
@@ -276,7 +271,7 @@ const users: AssignedLead[] = [
         </span>
       </Badge>
     ),
-    other_contact:'-',
+    other_contact: "-",
     fix_entry_date: "05/01/2026 4:45pm",
   },
   {
@@ -298,7 +293,7 @@ const users: AssignedLead[] = [
         </span>
       </Badge>
     ),
-    other_contact:'-',
+    other_contact: "-",
     fix_entry_date: "12/12/2025 1:00pm",
   },
   {
@@ -320,7 +315,7 @@ const users: AssignedLead[] = [
         </span>
       </Badge>
     ),
-    other_contact:'-',
+    other_contact: "-",
     fix_entry_date: "03/01/2026 11:30am",
   },
   {
@@ -342,7 +337,7 @@ const users: AssignedLead[] = [
         </span>
       </Badge>
     ),
-    other_contact:'-',
+    other_contact: "-",
     fix_entry_date: "04/01/2026 2:15pm",
   },
 ];
