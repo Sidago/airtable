@@ -11,7 +11,7 @@ export default function Header({ breadcrumbs = [] }: HeaderProps) {
   const [showSearch, setShowSearch] = useState(false); // for md+
 
   return (
-    <div className="sticky top-4 z-30 p-4 bg-white border-b border-gray-200">
+    <div className="sticky top-4 md:top-0 z-30 p-4 bg-white border-b border-gray-200">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
 
         {/* Breadcrumb */}

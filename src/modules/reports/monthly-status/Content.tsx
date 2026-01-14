@@ -10,7 +10,7 @@ export default function Content() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 p-4">
+      <div className="sticky top-4 md:top-0 z-30 bg-white border-b border-gray-200 p-4">
         <Breadcrumb
           items={[
             { label: "Reports", active: false },

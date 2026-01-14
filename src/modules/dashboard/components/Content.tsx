@@ -21,7 +21,7 @@ export default function Content() {
   return (
     <div className="flex flex-col h-screen">
       {/* Fixed Header */}
-      <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200 flex items-center">
+      <div className="sticky top-4 md:top-0 z-30 p-4 bg-white border-b border-gray-200 flex items-center">
         <Breadcrumb
           items={[
             { label: "Tom Silver", active: false },
@@ -31,8 +31,8 @@ export default function Content() {
       </div>
 
       {/* Scrollable Main Content */}
-      <div className="flex-1 overflow-y-auto p-10" onScroll={handleScroll}>
-        <div className="w-full space-y-5 mb-10">
+      <div className="flex-1 overflow-y-auto p-4" onScroll={handleScroll}>
+        <div className="w-full space-y-5 mt-4 mb-10">
           <div className="text-xl font-medium">
             <p>{`Today's`} call report</p>
           </div>
@@ -79,7 +79,7 @@ export default function Content() {
               />
             </div>
 
-            <div className="py-5 px-4 md:px-0">
+            <div className="py-5">
               <Table
                 data={users}
                 columns={columns}
@@ -120,7 +120,7 @@ export default function Content() {
               />
             </div>
 
-            <div className="py-5 px-4 md:px-0">
+            <div className="py-5">
               <Table
                 data={users}
                 columns={columns}
