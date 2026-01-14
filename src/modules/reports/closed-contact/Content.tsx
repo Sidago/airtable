@@ -117,7 +117,7 @@ export default function Content() {
       />
 
       {/* navigation tab */}
-      <div className="relative mt-8 px-4">
+      <div className="relative mt-8 md:mt-0 px-4">
         {/* Large screens: horizontal tabs */}
         <div className="hidden sm:flex gap-4 overflow-x-auto border-b border-gray-100 text-sm scrollbar-none">
           {tabs.map((tab) => (

@@ -5,7 +5,7 @@ import React from "react";
 
 export default function Heading() {
   return (
-    <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200">
+    <div className="sticky top-4 md:top-0 z-30 p-4 bg-white border-b border-gray-200">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-4 md:px-10">
         {/* Left section */}
         <div className="w-full md:w-auto">

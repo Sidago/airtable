@@ -12,7 +12,7 @@ export default function Content() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 p-4">
+      <div className="sticky top-4 md:top-0 z-30 bg-white border-b border-gray-200 p-4">
         <Breadcrumb
           items={[
             { label: "Auxiliary Staff", active: false },
@@ -29,7 +29,7 @@ export default function Content() {
         }}
       >
         <div className="w-full p-4">
-          <div className="w-full space-y-5 mb-10">
+          <div className="w-full space-y-5 mt-4 mb-10">
             <div className="text-xl font-medium">
               <p>Summary</p>
             </div>

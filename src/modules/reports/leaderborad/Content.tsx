@@ -9,7 +9,7 @@ export default function Content() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Fixed header */}
-      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 p-4">
+      <div className="sticky top-4 md:top-0 z-30 bg-white border-b border-gray-200 p-4">
         <Breadcrumb
           items={[
             { label: "Reports", active: false },
@@ -19,8 +19,8 @@ export default function Content() {
       </div>
 
       {/* Scrollable main content */}
-      <div className="flex-1 overflow-y-auto p-10">
-        <div className="w-full space-y-5 mb-10">
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="w-full space-y-5 mt-4 mb-10">
           <div className="text-xl font-medium">
             <p>{`Today's`} Winner</p>
           </div>
