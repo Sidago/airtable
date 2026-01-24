@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Input from "@/components/shared/Input";
 import { useAuth } from "../hooks/useAuth";
-import { useRouter } from "next/navigation";
 
 interface Credentials {
   email: string;
@@ -12,7 +11,6 @@ interface Credentials {
 
 export default function Content() {
   const { login } = useAuth();
-  const router = useRouter();
   const [credentials, setCredentials] = useState<Credentials>({
     email: "",
     password: "",
@@ -25,8 +23,7 @@ export default function Content() {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!credentials.email || !credentials.password) return;
-     router.push("/"); 
-    // login.mutate(credentials);
+    login.mutate(credentials);
   };
 
   return (

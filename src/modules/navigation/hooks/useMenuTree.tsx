@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { MenuItem, SubmenuItem } from "@/types/menu";
 import { User, BookOpen, ClipboardClock } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useLoaderStore } from "@/modules/loader/store/loader.store";
+import { useAuthStore } from "@/modules/signin/store/auth.store";
+import { agentService } from "../services/agent.service";
 
 const CRM_ID = "sidago-crm";
 
-export const CRMAGENT = [
-  { crm_id: CRM_ID, id: "tom-silver", label: "Tom Silver" },
-  { crm_id: CRM_ID, id: "mariz-cabido", label: "Mariz Cabido" },
-  { crm_id: CRM_ID, id: "alex-grant", label: "Alex Grant" },
-  { crm_id: CRM_ID, id: "sophia-rivera", label: "Sophia Rivera" },
-];
+/* ======================================================
+   MENU CONSTANTS
+====================================================== */
 
 const AGENT_MENU_ITEMS = [
   "Calls Log",
@@ -22,13 +23,13 @@ const AGENT_MENU_ITEMS = [
   "Dashboard",
 ] as const;
 
-const AGENT_MENU_PATHS = {
+const AGENT_MENU_PATHS: Record<(typeof AGENT_MENU_ITEMS)[number], string> = {
   "Calls Log": "calls-log",
   "Calls Log Beta": "calls-log-beta",
   "Auto Mighty Call": "auto-call",
   "Leads Manual Update": "leads-manual",
   Dashboard: "dashboard",
-} as const;
+};
 
 const AUXILIARY_BASE_SUBMENUS = [
   { label: "Level 2 Update", path: "level-update" },
@@ -60,12 +61,72 @@ const REPORT_SUBMENUS = [
   { label: "Closed Contacts", path: "closed-contact" },
 ] as const;
 
+/* ======================================================
+   HOOK
+====================================================== */
+
 export default function useMenuTree() {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.tokens?.access_token);
 
-  // --- Build full menus ---
+  const showLoader = useLoaderStore((s) => s.showLoader);
+  const hideLoader = useLoaderStore((s) => s.hideLoader);
+
+  const [agentList, setAgentList] = useState<string[]>([]);
+  const [isFetchingAgents, setIsFetchingAgents] = useState(false);
+
+  /* ======================================================
+     FETCH AGENTS
+  ====================================================== */
+
+  const fetchAgents = useCallback(async () => {
+    if (!token) return;
+
+    setIsFetchingAgents(true);
+    try {
+      const data = await agentService.agentList(token);
+      setAgentList(data.map((a: any) => a.username));
+    } catch {
+      setAgentList([]);
+    } finally {
+      setIsFetchingAgents(false);
+    }
+  }, [token]);
+
+  /* ======================================================
+     ROLE-BASED AGENT SOURCE
+  ====================================================== */
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (user.roles.includes("admin") || user.roles.includes("backoffice")) {
+      fetchAgents();
+    } else {
+      setAgentList([user.username]);
+    }
+  }, [user, fetchAgents]);
+
+  /* ======================================================
+     AGENT MODELS
+  ====================================================== */
+
+  const agents = useMemo(
+    () =>
+      agentList.map((username) => ({
+        id: username,
+        label: username.replace(/[-_]/g, " "),
+      })),
+    [agentList]
+  );
+
+  /* ======================================================
+     MENUS (PURE DERIVATION)
+  ====================================================== */
+
   const menus: MenuItem[] = useMemo(() => {
-    const agents = CRMAGENT.filter((a) => a.crm_id === CRM_ID);
+    if (!user) return [];
 
     const agentMenus: MenuItem[] = agents.map((agent) => {
       const submenus: SubmenuItem[] = AGENT_MENU_ITEMS.map((label) => ({
@@ -82,63 +143,82 @@ export default function useMenuTree() {
       };
     });
 
-    const auxiliarySubmenus: SubmenuItem[] = [
-      ...AUXILIARY_BASE_SUBMENUS.map((m) => ({
-        label: m.label,
-        href: `/crm/${CRM_ID}/${m.path}`,
-      })),
-      ...agents.map((agent) => ({
-        label: `SMS - ${agent.label}`,
-        href: `/crm/${CRM_ID}/${agent.id}/sms`,
-      })),
-      ...agents.map((agent) => ({
-        label: `Email - ${agent.label}`,
-        href: `/crm/${CRM_ID}/${agent.id}/email`,
-      })),
-    ];
-
-    const auxiliaryMenu: MenuItem = {
-      id: "auxiliary-staff",
-      icon: <BookOpen size={16} />,
-      label: "Auxiliary Staff",
-      routes: auxiliarySubmenus.map((s) => s.href),
-      submenus: auxiliarySubmenus,
-    };
-
-    const reportSubmenus: SubmenuItem[] = REPORT_SUBMENUS.map((r) => ({
-      label: r.label,
-      href: `/crm/${CRM_ID}/${r.path}`,
-    }));
-
     const reportMenu: MenuItem = {
       id: "reports",
       icon: <ClipboardClock size={16} />,
       label: "Reports",
-      routes: reportSubmenus.map((s) => s.href),
-      submenus: reportSubmenus,
+      routes: REPORT_SUBMENUS.map((r) => `/crm/${CRM_ID}/${r.path}`),
+      submenus: REPORT_SUBMENUS.map((r) => ({
+        label: r.label,
+        href: `/crm/${CRM_ID}/${r.path}`,
+      })),
     };
 
-    return [...agentMenus, auxiliaryMenu, reportMenu];
-  }, []);
+    const auxiliaryMenu: MenuItem = {
+      id: "auxiliary",
+      icon: <BookOpen size={16} />,
+      label: "Auxiliary Staff",
+      routes: AUXILIARY_BASE_SUBMENUS.map(
+        (m) => `/crm/${CRM_ID}/${m.path}`
+      ),
+      submenus: AUXILIARY_BASE_SUBMENUS.map((m) => ({
+        label: m.label,
+        href: `/crm/${CRM_ID}/${m.path}`,
+      })),
+    };
 
-  // --- Derive activeParentId and activeTab directly from URL ---
+    if (user.roles.includes("backoffice")) {
+      return [reportMenu];
+    }
+
+    if (user.roles.includes("agent")) {
+      return agentMenus.filter((m) => m.id === user.username);
+    }
+
+    return [...agentMenus, auxiliaryMenu, reportMenu];
+  }, [user, agents]);
+
+  /* ======================================================
+     LOADER (DERIVED, NO CASCADE)
+  ====================================================== */
+
+  const isLoading =
+    !user ||
+    (user.roles.some((r) => ["admin", "backoffice"].includes(r)) &&
+      isFetchingAgents);
+
+  useEffect(() => {
+    if (isLoading) showLoader();
+    else hideLoader();
+  }, [isLoading, showLoader, hideLoader]);
+
+  /* ======================================================
+     ACTIVE STATE
+  ====================================================== */
+
   const { activeParentId, activeTab } = useMemo(() => {
     if (!pathname) return { activeParentId: null, activeTab: null };
+
     const parts = pathname.split("/").filter(Boolean);
     if (parts[0] !== "crm") return { activeParentId: null, activeTab: null };
-    return { activeParentId: parts[2] || null, activeTab: pathname };
+
+    return {
+      activeParentId: parts[2] ?? null,
+      activeTab: pathname,
+    };
   }, [pathname]);
 
-  const isParentActive = (routes: string[]) => {
-    if (!activeTab) return false;
-    // Check if activeTab starts with any of the routes
-    return routes.some((route) => activeTab.startsWith(route));
-  };
+  const isParentActive = useCallback(
+    (routes: string[]) =>
+      !!activeTab && routes.some((r) => activeTab.startsWith(r)),
+    [activeTab]
+  );
+  
 
   return {
     menus,
     activeParentId,
-    isParentActive,
     activeTab,
+    isParentActive,
   };
 }

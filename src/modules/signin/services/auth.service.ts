@@ -1,6 +1,7 @@
+import { apiConfig } from "@/config/api.config";
 export const authService = {
   login: async (payload: { email: string; password: string }) => {
-    const res = await fetch("/api/auth/signin", {
+    const res = await fetch(apiConfig.endpoints.signin, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -10,13 +11,19 @@ export const authService = {
     return res.json();
   },
 
-  me: async () => {
-    const res = await fetch("/api/auth/me");
+  me: async (accessToken: string | null | undefined) => {
+    const res = await fetch(`${apiConfig.endpoints.me}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
     if (!res.ok) return null;
     return res.json();
   },
 
-  logout: async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+  logout: async (accessToken: string | null | undefined) => {
+    await fetch(apiConfig.endpoints.logout, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
   },
 };

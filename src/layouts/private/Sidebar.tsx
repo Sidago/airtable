@@ -21,6 +21,7 @@ export default function Sidebar() {
   const { logout } = useAuth();
   const { menus } = useMenuTree();
   const user = useAuthStore((state) => state.user);
+  const tokens = useAuthStore((s) => s.tokens);
   const [collapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => setCollapsed(!collapsed);
 
@@ -35,7 +36,7 @@ export default function Sidebar() {
     <aside
       className={clsx(
         "hidden md:flex flex-col h-full bg-[#3b66a3] transition-[width] duration-300 ease-in-out overflow-hidden",
-        collapsed ? "w-16" : "w-68"
+        collapsed ? "w-16" : "w-72"
       )}
     >
       {/* Top Branding */}
@@ -76,9 +77,9 @@ export default function Sidebar() {
         >
           {/* Profile Menu */}
           <HeadlessMenu as="div" className="relative">
-            <HeadlessMenuButton title={collapsed ? "Sidago" : ""}>
+            <HeadlessMenuButton className="outline-0 ring-0" title={collapsed ? "Sidago" : ""}>
               <Avatar
-                initials="Sidago"
+                initials={user?.username || "S"}
                 size="xs"
                 shape="rounded-full"
                 initialsClassName="text-white text-sm bg-purple-500"
@@ -97,8 +98,8 @@ export default function Sidebar() {
               >
                 <div className="p-4">
                   <div className="flex flex-col gap-1 mb-2">
-                    <p className="text-xs font-medium">Sidago</p>
-                    <p className="text-xs font-medium">sidago@example.com</p>
+                    <p className="text-xs font-medium">{user?.username}</p>
+                    <p className="text-xs font-medium">{user?.email}</p>
                   </div>
                   <Divider />
                   <div className="flex flex-col">
@@ -124,7 +125,7 @@ export default function Sidebar() {
                       {({ active }) => (
                         <button
                           className="w-full text-left py-2 rounded flex items-center gap-1 cursor-pointer"
-                          onClick={() => logout.mutate()}
+                          onClick={() => logout.mutate(tokens?.access_token)}
                         >
                           <LogOut size={14} />
                           Logout

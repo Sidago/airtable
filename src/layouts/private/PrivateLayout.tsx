@@ -1,20 +1,41 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import { useAuthStore } from "@/modules/signin/store/auth.store";
+import NextTopLoader from "nextjs-toploader";
+import Loader from "@/modules/loader/components/Loader";
 
-const Sidebar = dynamic(() => import("./Sidebar"), {
-  ssr: false, // or remove if SSR is fine
-});
-
-const MobileSidebar = dynamic(() => import("./MobileSidebar"), {
-  ssr: false, // optional
-});
+const Sidebar = dynamic(() => import("./Sidebar"), { ssr: false });
+const MobileSidebar = dynamic(() => import("./MobileSidebar"), { ssr: false });
 
 export default function PrivateLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const tokens = useAuthStore((s) => s.tokens);
+  const [hydrated, setHydrated] = useState(false);
+
+  // ✅ Wait until Zustand store is rehydrated from localStorage
+  useEffect(() => {
+    const timeout = setTimeout(() => setHydrated(true), 0); 
+    return () => clearTimeout(timeout);
+  }, []);
+
+  // ✅ Redirect if no access token after hydration
+  useEffect(() => {
+    if (hydrated && !tokens?.access_token) {
+      router.replace("/signin");
+    }
+  }, [hydrated, tokens, router]);
+
+  // Show nothing until store is rehydrated
+  if (!hydrated) return null;
+
   return (
     <ReactQueryProvider>
+      <NextTopLoader showSpinner={false} />
+      <Loader/>
       <div className="h-screen overflow-hidden">
         <div className="flex h-full">
           {/* Desktop Sidebar */}

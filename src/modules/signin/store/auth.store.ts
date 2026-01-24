@@ -1,26 +1,43 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-// ✅ Define a proper User type instead of any
+// --------------------
+// Types
+// --------------------
 export type User = {
   id: string;
-  name: string;
+  username: string;
   email: string;
-  role: string;
+  roles: string[];
+};
+
+export type Tokens = {
+  access_token: string;
+  refresh_token: string;
 };
 
 type AuthState = {
   user: User | null;
+  tokens: Tokens | null;
+
   setUser: (user: User | null) => void;
+  setTokens: (tokens: Tokens | null) => void;
   logout: () => void;
 };
 
+// --------------------
+// Zustand Store
+// --------------------
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      setUser: (user) => set({ user }),
-      logout: () => set({ user: null }),
+      tokens: null,
+
+      setUser: (user: User | null) => set({ user }),
+      setTokens: (tokens: Tokens | null) => set({ tokens }),
+
+      logout: () => set({ user: null, tokens: null }),
     }),
     {
       name: "auth-storage",
