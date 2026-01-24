@@ -101,7 +101,7 @@ export default function useMenuTree() {
   useEffect(() => {
     if (!user) return;
 
-    if (user.roles.includes("admin") || user.roles.includes("backoffice")) {
+    if (user.roles.includes("admin")) {
       fetchAgents();
     } else {
       setAgentList([user.username]);
