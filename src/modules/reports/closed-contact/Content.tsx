@@ -4,6 +4,14 @@ import Table, { TableColumn } from "@/components/table/Table";
 import useDummy from "@/helpers/dummy";
 import Header from "@/modules/auxiliary/components/Header";
 import React, { ReactNode } from "react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from "@headlessui/react";
+import { ChevronDown } from "lucide-react";
+import clsx from "clsx";
 
 /* ======================
    Types
@@ -61,12 +69,23 @@ export default function Content() {
 
   const [data, setData] = React.useState<Lead[]>([]);
 
+  // -----------------------------
+  // Tabs
+  // -----------------------------
+  const tabs = [
+    "SVG Current",
+    "SVG Historical",
+    "Benton Current",
+    "Benton Historical",
+    "All Closed Contacts",
+  ];
+  const [currentTab, setCurrentTab] = React.useState(tabs[0]); // default to first tab
+
   /* Generate dummy leads */
   const generateLeads = (count = 20): Lead[] => {
     return Array.from({ length: count }, () => {
       const company_name = company();
       const company_symbol = symbol(company_name);
-
       return {
         lead: leadID(),
         company_name,
@@ -96,8 +115,64 @@ export default function Content() {
           { label: "Closed Contracts", active: true },
         ]}
       />
+
+      {/* navigation tab */}
+      <div className="relative mt-8 md:mt-0 px-4">
+        {/* Large screens: horizontal tabs */}
+        <div className="hidden sm:flex gap-4 overflow-x-auto border-b border-gray-100 text-sm scrollbar-none">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setCurrentTab(tab)}
+              className={clsx(
+                "relative shrink-0 px-3 py-2 transition-colors cursor-pointer",
+                currentTab === tab
+                  ? "text-gray-900 font-semibold"
+                  : "text-gray-500 hover:text-gray-800"
+              )}
+            >
+              {tab}
+              {/* Active Tab Bottom Border */}
+              {currentTab === tab && (
+                <span className="absolute left-0 bottom-0 w-full h-0.5 bg-blue-400"></span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Small screens: dropdown */}
+        <div className="sm:hidden w-full">
+          <Listbox value={currentTab} onChange={setCurrentTab}>
+            <div className="relative">
+              <ListboxButton className="relative w-full cursor-pointer bg-white border border-gray-200 rounded px-4 py-2 text-left focus:outline-none ring-0 flex justify-between items-center">
+                <span>{currentTab}</span>
+                <ChevronDown size={16} />
+              </ListboxButton>
+
+              <ListboxOptions className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-40 overflow-auto z-[100]">
+                {tabs.map((tab) => (
+                  <ListboxOption
+                    key={tab}
+                    value={tab}
+                    className={({ active, selected }) =>
+                      clsx(
+                        "cursor-pointer px-4 py-2",
+                        active && "bg-blue-100",
+                        selected && "font-semibold text-blue-600"
+                      )
+                    }
+                  >
+                    {tab}
+                  </ListboxOption>
+                ))}
+              </ListboxOptions>
+            </div>
+          </Listbox>
+        </div>
+      </div>
+
       {/* Table/Grid */}
-      <div className="py-5">
+      <div className="py-5 px-4 md:px-0">
         <Table
           data={data}
           columns={columns}

@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Heading() {
   return (
-    <div className="sticky top-0 z-30 p-4 bg-white border-b border-gray-200">
+    <div className="sticky top-3 z-30 p-4 bg-white border-b border-gray-200">
       <div className="text-base font-semibold flex items-center gap-4">
         NASDAQ : FRPT - Mr. Christopher Kraus
         <Badge>

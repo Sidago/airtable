@@ -126,7 +126,7 @@ export default function useMenuTree() {
   ====================================================== */
 
   const menus: MenuItem[] = useMemo(() => {
-    if (!user) return [];
+    if (!user || agents.length === 0) return [];
 
     const agentMenus: MenuItem[] = agents.map((agent) => {
       const submenus: SubmenuItem[] = AGENT_MENU_ITEMS.map((label) => ({
@@ -179,13 +179,13 @@ export default function useMenuTree() {
   }, [user, agents]);
 
   /* ======================================================
-     LOADER (DERIVED, NO CASCADE)
+     GLOBAL LOADER (SINGLE SOURCE OF TRUTH)
   ====================================================== */
 
   const isLoading =
     !user ||
-    (user.roles.some((r) => ["admin", "backoffice"].includes(r)) &&
-      isFetchingAgents);
+    isFetchingAgents ||
+    (user.roles.includes("admin") && agentList.length === 0);
 
   useEffect(() => {
     if (isLoading) showLoader();
@@ -213,7 +213,6 @@ export default function useMenuTree() {
       !!activeTab && routes.some((r) => activeTab.startsWith(r)),
     [activeTab]
   );
-  
 
   return {
     menus,
