@@ -47,9 +47,13 @@ const columns: TableColumn<Lead>[] = [
   { key: "phone", label: "Phone", width: 140 },
   { key: "timezone", label: "Timezone", width: 100 },
   { key: "contact_type", label: "Contact Type", width: 120 },
-  { key: "lead_type", label: "Benton Lead Type", width: 130 },
-  { key: "tobe_called", label: "Benton To Be Called", width: 140 },
-  { key: "date_become_hot", label: "Date Become Hot", width: 140 },
+  { key: "lead_type", label: "Lead Type", width: 130 },
+  { key: "tobe_called", label: "SVG - To Be Called By", width: 140 },
+  { key: "date_become_hot", label: "SVG - Last Call Date", width: 140 },
+  { key: "lead_type", label: "Benton - Lead Type", width: 130 },
+  { key: "tobe_called", label: "Benton - To Be Called By", width: 140 },
+  { key: "date_become_hot", label: "Benton - Last Call Date", width: 140 },
+  { key: "date_become_hot", label: "Benton - Date Become Hot", width: 140 },
   { key: "last_action", label: "Last Action", width: 180 },
 ];
 

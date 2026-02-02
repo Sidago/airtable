@@ -58,8 +58,8 @@ const columns: TableColumn<Lead>[] = [
 
   { key: "sidago_tobe_called", label: "To be Called(Sidago)", width: 130 },
   { key: "svg_last_call", label: "SVG - Last Called Date", width: 130 },
-  { key: "benton_lead_type", label: "Lead Type(Benton)", width: 130 },
-  { key: "benton_tobe_called", label: "To be Called(Benton)", width: 130 },
+  { key: "benton_lead_type", label: "Benton - Lead Type", width: 130 },
+  { key: "benton_tobe_called", label: "To be Called (Benton)", width: 130 },
   { key: "benton_last_call", label: "Benton - Last Called Date", width: 130 },
   { key: "date_become_hot", label: "Date Become Hot", width: 130 },
   { key: "last_action", label: "Last Action Date", width: 130 },

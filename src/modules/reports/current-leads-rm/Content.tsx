@@ -50,9 +50,9 @@ const columns: TableColumn<Lead>[] = [
   { key: "phone", label: "Phone", width: 140 },
   { key: "timezone", label: "Timezone", width: 100 },
   { key: "contact_type", label: "Contact Type", width: 120 },
-  { key: "lead_type", label: "95RM Lead Type", width: 130 },
-  { key: "tobe_called", label: "95RM To Be Called", width: 140 },
-  { key: "date_become_hot", label: "Date Become Hot", width: 140 },
+  { key: "lead_type", label: "95RM - Lead Type", width: 130 },
+  { key: "tobe_called", label: "95RM - To Be Called By", width: 140 },
+  { key: "date_become_hot", label: "95RM - Date Become Hot", width: 140 },
   { key: "last_action", label: "Last Action", width: 180 },
 ];
 
