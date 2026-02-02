@@ -125,7 +125,7 @@ export default function Sidebar() {
                       {({ active }) => (
                         <button
                           className="w-full text-left py-2 rounded flex items-center gap-1 cursor-pointer"
-                          onClick={() => logout.mutate(tokens?.access_token)}
+                          onClick={() => logout.mutate()}
                         >
                           <LogOut size={14} />
                           Logout

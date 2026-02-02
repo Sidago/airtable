@@ -173,19 +173,17 @@ export default function Content() {
                   }
                   direction="column"
                 />
-
-                <InfoRow
-                  label=""
-                  value={
-                    <div className="font-semibold">
-                      <span className="text-red-500 mr-1">*</span>
-                      <span>
-                        This person {`doesn't`} work anymore in this company
-                      </span>
-                    </div>
-                  }
-                  direction="column"
-                />
+              </div>
+              <div>
+                <div className="font-semibold text-xs">
+                  <span className="text-red-500 mr-1">*</span>
+                  <span>
+                    This person {`doesn't`} work anymore in this company
+                  </span>
+                </div>
+                <div>
+                  <input type="checkbox" />
+                </div>
               </div>
               <div>
                 <p className="py-2 text-xs font-semibold">

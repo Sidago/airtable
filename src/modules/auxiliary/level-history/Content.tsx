@@ -1,11 +1,13 @@
 "use client";
-import Header from "@/modules/auxiliary/components/Header";
 import Table, { TableColumn } from "@/components/table/Table";
 import React, { ReactNode } from "react";
 import Badge from "@/components/shared/Badge";
+import { ChevronDown } from "lucide-react";
+import Header from "@/components/shared/Header";
 
 export default function Content() {
   const [data, setData] = React.useState<History[]>([]);
+  const [groupBy, setGroupBy] = React.useState<GroupKey>(null);
 
   React.useEffect(() => {
     setData(generateHistories());
@@ -18,6 +20,10 @@ export default function Content() {
           { label: "Auxiliary Staff", active: false },
           { label: "Level 2 - History", active: true },
         ]}
+        csvExport={true}
+        groupBy={groupBy as string | null}
+        onGroupByChange={(value) => setGroupBy(value as GroupKey)}
+        options={groupOptions}
       />
       {/* Table/Grid */}
       <div className="py-5 px-4 md:px-0">
@@ -25,7 +31,20 @@ export default function Content() {
           data={data}
           columns={columns}
           onRowClick={(row) => console.log("Row clicked", row)}
+          groupBy={groupBy ?? undefined}
+          collapsibleGroups
+          renderGroupHeader={(group, count) => (
+            <div className="group flex items-center gap-2 px-4 py-2 bg-gray-100 font-semibold cursor-pointer select-none">
+              <ChevronDown
+                size={16}
+                className="text-gray-600 transition-transform duration-200 group-data-[open=true]:rotate-180"
+              />
+              <span>{group}</span>
+              <span className="text-xs text-gray-500">({count})</span>
+            </div>
+          )}
         />
+        <div className="px-5 text-sm">{data.length} leads</div>
       </div>
     </div>
   );
@@ -55,7 +74,17 @@ interface History {
   created_date: string;
   lead_type_sidago: ReactNode;
   lead_type_benton: ReactNode;
+  lead_type_rm: ReactNode;
 }
+/* ======================
+   Group Options
+====================== */
+type GroupKey = keyof History | null;
+const groupOptions: { label: string; value: GroupKey }[] = [
+  { label: "Group", value: null },
+  { label: "Company Name", value: "update_notes" },
+  { label: "Timezone", value: "callback_date" },
+];
 
 const CAMPAIGN = {
   benton: (
@@ -163,6 +192,7 @@ const columns: TableColumn<History>[] = [
   { key: "created_date", label: "Created Date", width: 200 },
   { key: "lead_type_sidago", label: "Lead Type Sidago", width: 200 },
   { key: "lead_type_benton", label: "Lead Type Benton", width: 200 },
+  { key: "lead_type_rm", label: "Lead Type 95RM", width: 200 },
 ];
 
 const generateHistories = (): History[] =>
@@ -192,4 +222,5 @@ const generateHistories = (): History[] =>
 
     lead_type_sidago: pickRandom(TYPE),
     lead_type_benton: pickRandom(TYPE),
+    lead_type_rm: pickRandom(TYPE),
   }));

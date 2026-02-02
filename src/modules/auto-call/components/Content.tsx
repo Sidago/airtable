@@ -5,7 +5,7 @@ import Footer from "@/components/ui/contact-drawer/Footer";
 import Header from "@/components/ui/contact-drawer/Header";
 import InfoRow from "@/components/ui/InfoRow";
 import InvalidAction from "@/components/ui/InvalidAction";
-import Heading from "@/modules/calllogbeta/components/Heading";
+import Heading from "@/modules/auto-call/components/Heading";
 import { ExternalLink } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -113,13 +113,30 @@ export default function Content() {
                 <InfoRow
                   label=""
                   value={
-                    <Link
-                      href="tel:+16318359319"
-                      className="inline-flex items-center gap-1 bg-gray-200 p-2 rounded"
-                    >
-                      <span>Click to Call</span>
-                      <ExternalLink size={14} className="opacity-70" />
-                    </Link>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Link
+                          href="#"
+                          className="inline-flex items-center gap-1 bg-gray-200 p-2 rounded"
+                        >
+                          <span>Start auto dialing</span>
+                        </Link>
+                        <Link
+                          href="#"
+                          className="inline-flex items-center gap-1 bg-gray-200 p-2 rounded"
+                        >
+                          <span>Call Lead</span>
+                        </Link>
+                      </div>
+                      <div>
+                        <Link
+                          href="#"
+                          className="inline-flex items-center gap-1 bg-gray-200 p-2 rounded"
+                        >
+                          <span>Stop auto dialing</span>
+                        </Link>
+                      </div>
+                    </div>
                   }
                   direction="column"
                 />

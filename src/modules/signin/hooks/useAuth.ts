@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// useAuth.ts
 "use client";
 
-import { useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../store/auth.store";
@@ -12,33 +11,57 @@ export function useAuth() {
   const setUser = useAuthStore((s) => s.setUser);
   const setTokens = useAuthStore((s) => s.setTokens);
   const tokens = useAuthStore((s) => s.tokens);
-  const logoutStore = useAuthStore((s) => s.logout); // Assuming you have a clear action
 
   const meQuery = useQuery({
-    queryKey: ["auth-user"],
-    queryFn: () => authService.me(tokens?.access_token),
+    queryKey: ["auth-user", tokens?.access_token],
     retry: false,
-    // Prevents the query from running if there's no token at all
-    enabled: !!tokens?.access_token, 
+    queryFn: async () => {
+      if (!tokens?.access_token) return null;
+
+      const me = await authService.me(tokens.access_token);
+
+      // ✅ Access token expired
+      if (me?.status === 401) {
+        if (!tokens?.refresh_token) {
+          logout.mutate();
+          return null;
+        }
+
+        // 🔁 Try refresh token
+        const refreshed = await authService.refreshToken(tokens.refresh_token);
+        console.log(refreshed)
+
+        if (!refreshed?.access_token) {
+          logout.mutate();
+          return null;
+        }
+
+        // ✅ Save new tokens
+        setTokens({
+          access_token: refreshed.access_token,
+          refresh_token: refreshed.refresh_token,
+        });
+
+        // 🔁 Retry me API
+        const meRetry = await authService.me(refreshed.access_token);
+        return meRetry;
+      }
+
+      return me;
+    },
   });
 
-  // ✅ Automatically logout on 401
-  useEffect(() => {
-    if (meQuery.error) {
-      const status = (meQuery.error as any)?.response?.status;
-      if (status === 401) {
-        // Clear local state
-        setUser(null);
-        setTokens(null);
-        // Redirect to login
-        router.replace("/signin");
-      }
-    }
-  }, [meQuery.error, setUser, setTokens, router]);
+  const login = useMutation({
+    mutationFn: authService.login,
+    onSuccess: ({ access_token, refresh_token, user }) => {
+      setUser(user);
+      setTokens({ access_token, refresh_token });
+      router.replace("/");
+    },
+  });
 
-  // ✅ Manual Logout Mutation
   const logout = useMutation({
-    mutationFn: authService.logout,
+    mutationFn: () => authService.logout(tokens?.access_token),
     onSuccess: () => {
       setUser(null);
       setTokens(null);
@@ -50,15 +73,7 @@ export function useAuth() {
     user: meQuery.data,
     isAuthenticated: !!meQuery.data,
     isLoading: meQuery.isLoading,
-    error: meQuery.error,
-    login: useMutation({
-        mutationFn: authService.login,
-        onSuccess: ({ access_token, refresh_token, user }) => {
-          setUser(user);
-          setTokens({ access_token, refresh_token });
-          router.replace("/");
-        },
-    }),
+    login,
     logout,
   };
 }

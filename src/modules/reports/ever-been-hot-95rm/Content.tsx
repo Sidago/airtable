@@ -3,8 +3,9 @@
 import Table, { TableColumn } from "@/components/table/Table";
 import CommonDrawer from "@/helpers/CommonDrawer";
 import useDummy from "@/helpers/dummy";
-import Header from "@/modules/auxiliary/components/Header";
+import Header from "@/components/shared/Header";
 import React, { ReactNode, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 /* ======================
    Types
@@ -13,7 +14,7 @@ interface Lead {
   lead: ReactNode;
   company_symbol: ReactNode;
   company_name: string;
-  full_name: string;
+  full_name: ReactNode;
   email: ReactNode;
   phone: string;
   timezone: ReactNode;
@@ -24,6 +25,19 @@ interface Lead {
   date_become_hot: ReactNode;
   last_action: ReactNode;
 }
+
+/* ======================
+   Group Options
+====================== */
+type GroupKey = keyof Lead | null;
+
+const groupOptions: { label: string; value: GroupKey }[] = [
+  { label: "Group", value: null },
+  { label: "Lead ID", value: "lead" },
+  { label: "Company Name", value: "company_name" },
+  { label: "Lead Type", value: "lead_type" },
+  { label: "Contact Type", value: "contact_type" },
+];
 
 /* ======================
    Columns
@@ -62,6 +76,7 @@ export default function Content() {
   } = useDummy();
 
   const [data, setData] = React.useState<Lead[]>([]);
+  const [groupBy, setGroupBy] = React.useState<GroupKey>(null);
 
   /* Generate dummy leads */
   const generateLeads = (count = 20): Lead[] => {
@@ -90,7 +105,6 @@ export default function Content() {
     setData(generateLeads(20));
   }, []);
 
-  // Drawer state
   const [drawer, setDrawer] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -104,16 +118,35 @@ export default function Content() {
       <Header
         breadcrumbs={[
           { label: "Reports", active: false },
-          { label: "Ever been Hot - 95RM", active: true },
+          { label: "Ever Been Hot - 95RM", active: true },
         ]}
+        groupBy={groupBy as string | null}
+        onGroupByChange={(value) => setGroupBy(value as GroupKey)}
+        options={groupOptions}
+        printAll
+        csvExport
       />
+
       {/* Table/Grid */}
       <div className="py-5 px-4 md:px-0">
         <Table
           data={data}
           columns={columns}
-          onRowClick={() => setDrawer(true)} // open drawer on row click
+          onRowClick={() => setDrawer(true)}
+          groupBy={groupBy ?? undefined}
+          collapsibleGroups
+          renderGroupHeader={(group, count) => (
+            <div className="group flex items-center gap-2 px-4 py-2 bg-gray-100 font-semibold cursor-pointer select-none">
+              <ChevronDown
+                size={16}
+                className="text-gray-600 transition-transform duration-200 group-data-[open=true]:rotate-180"
+              />
+              <span>{group}</span>
+              <span className="text-xs text-gray-500">({count})</span>
+            </div>
+          )}
         />
+        <div className="px-5 text-sm">{data.length} leads</div>
       </div>
 
       {/* Drawer */}

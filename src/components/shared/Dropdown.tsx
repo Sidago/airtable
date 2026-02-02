@@ -25,7 +25,6 @@ export interface DropdownProps {
   itemClassName?: string;
   icon?: React.ReactNode;
 
-  /** NEW */
   search?: boolean;
 }
 
@@ -70,10 +69,11 @@ export default function Dropdown({
   };
 
   return (
-    <Menu as="div" className="relative inline-block text-left w-full outline-0">
+    <Menu as="div" className="relative inline-block text-left outline-0">
       <MenuButton
         className={clsx(
-          "w-full inline-flex justify-between items-center gap-2 rounded-md py-1.5 text-sm font-semibold cursor-pointer outline-0",
+          "inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold cursor-pointer outline-0 whitespace-nowrap",
+          "hover:bg-gray-50",
           buttonClassName
         )}
       >
@@ -83,7 +83,7 @@ export default function Dropdown({
 
       <MenuItems
         className={clsx(
-          "absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg p-1 text-sm outline-0",
+          "absolute z-50 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg p-1 text-sm outline-0",
           menuClassName
         )}
       >
@@ -96,16 +96,14 @@ export default function Dropdown({
                 placeholder="Search..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full rounded-md border border-gray-100 px-8 py-1.5 text-sm font-normal outline-none"
+                className="w-full rounded-md border border-gray-100 px-8 py-1.5 text-sm outline-none"
               />
             </div>
           </div>
         )}
 
         {filteredItems.length === 0 && (
-          <div className="px-3 py-2 text-sm text-gray-400">
-            No results found
-          </div>
+          <div className="px-3 py-2 text-sm text-gray-400">No results found</div>
         )}
 
         {filteredItems.map((item, idx) => (

@@ -64,28 +64,30 @@ export default function Select({
   wrapperClassName = "",
   labelClassName = "text-xs font-semibold",
   triggerClassName = "w-full text-sm font-normal border border-gray-200 rounded px-3 py-1 flex items-center justify-between cursor-pointer focus:border-blue-400",
-  dropdownClassName = "absolute z-50 mt-1 bg-white border-0 rounded shadow",
+  dropdownClassName = "absolute z-50 bg-white border-0 rounded shadow",
   optionClassName = "px-2 py-1 text-sm font-normal cursor-pointer hover:bg-gray-100",
   errorClassName = "text-xs text-red-400 py-2",
 }: SelectProps) {
   const [open, setOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
-  const [dropdownWidth, setDropdownWidth] = useState<number | undefined>(
-    undefined
-  );
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [dropdownWidth, setDropdownWidth] = useState<number | undefined>();
 
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = useState(
-    defaultValue ?? (multiple ? [] : "")
+    defaultValue ?? (multiple ? [] : ""),
   );
 
   const currentValue = isControlled ? value! : internalValue;
 
   const filteredOptions = options.filter((opt) =>
-    opt.label?.toString().toLowerCase().includes(search.toLowerCase())
+    opt.label?.toString().toLowerCase().includes(search.toLowerCase()),
   );
 
   const validate = (val: string | string[]) => {
@@ -132,7 +134,7 @@ export default function Select({
     return options.find((o) => o.value === currentValue)?.label ?? placeholder;
   };
 
-  // Close dropdown on outside click
+  // Outside click close
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) {
@@ -143,16 +145,31 @@ export default function Select({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Set dropdown width dynamically to match trigger width
+  // Measure space and decide direction
   useEffect(() => {
-    if (open && triggerRef.current) {
-      setDropdownWidth(triggerRef.current.getBoundingClientRect().width);
-    }
-  }, [open]);
+    if (!open || !triggerRef.current) return;
+
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+
+    const estimatedHeight = 240; // max-h-60
+
+    // Wrap in requestAnimationFrame to avoid sync setState
+    requestAnimationFrame(() => {
+      setOpenUpward(spaceBelow < estimatedHeight && spaceAbove > spaceBelow);
+      setDropdownWidth(triggerRect.width);
+    });
+  }, [open, filteredOptions.length]);
 
   return (
-    <div className={wrapperClassName} ref={containerRef}>
-      {label && <label className={labelClassName}>{label}{required && <span className="text-red-400">*</span>}</label>}
+    <div className={`relative ${wrapperClassName}`} ref={containerRef}>
+      {label && (
+        <label className={labelClassName}>
+          {label}
+          {required && <span className="text-red-400">*</span>}
+        </label>
+      )}
 
       {/* Trigger */}
       <div
@@ -169,7 +186,13 @@ export default function Select({
 
       {/* Dropdown */}
       {open && (
-        <div className={dropdownClassName} style={{ width: dropdownWidth }}>
+        <div
+          ref={dropdownRef}
+          className={`${dropdownClassName} ${
+            openUpward ? "bottom-full mb-1" : "top-full mt-1"
+          }`}
+          style={{ width: dropdownWidth }}
+        >
           {searchable && (
             <input
               autoFocus

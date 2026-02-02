@@ -1,13 +1,15 @@
 "use client";
-import Header from "@/modules/auxiliary/components/Header";
+import Header from "@/components/shared/Header";
 import Table, { TableColumn } from "@/components/table/Table";
 import React, { ReactNode, useState } from "react";
 import Badge from "@/components/shared/Badge";
 import CommonDrawer from "@/helpers/CommonDrawer";
+import { ChevronDown } from "lucide-react";
 
 export default function Content() {
   const [drawer, setDrawer] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [groupBy, setGroupBy] = React.useState<GroupKey>(null);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
@@ -27,6 +29,10 @@ export default function Content() {
           { label: "Auxiliary Staff", active: false },
           { label: "Update Company", active: true },
         ]}
+        groupBy={groupBy as string | null}
+        onGroupByChange={(value) => setGroupBy(value as GroupKey)}
+        options={groupOptions}
+        printAll
       />
       {/* Table/Grid */}
       <div className="py-5 px-4 md:px-0">
@@ -34,7 +40,20 @@ export default function Content() {
           data={data}
           columns={columns}
           onRowClick={(row) => setDrawer(true)}
+          groupBy={groupBy ?? undefined}
+          collapsibleGroups
+          renderGroupHeader={(group, count) => (
+            <div className="group flex items-center gap-2 px-4 py-2 bg-gray-100 font-semibold cursor-pointer select-none">
+              <ChevronDown
+                size={16}
+                className="text-gray-600 transition-transform duration-200 group-data-[open=true]:rotate-180"
+              />
+              <span>{group}</span>
+              <span className="text-xs text-gray-500">({count})</span>
+            </div>
+          )}
         />
+        <div className="px-5 text-sm">{data.length} leads</div>
       </div>
       <CommonDrawer
         isOpen={drawer}
@@ -68,6 +87,17 @@ interface Lead {
   histroy_log: string | ReactNode;
   timezone: ReactNode;
 }
+
+/* ======================
+   Group Options
+====================== */
+type GroupKey = keyof Lead | null;
+const groupOptions: { label: string; value: GroupKey }[] = [
+  { label: "Group", value: null },
+  { label: "Lead Id", value: "lead" },
+  { label: "Company Name", value: "company_name" },
+];
+
 
 const columns: TableColumn<Lead>[] = [
   { key: "lead", label: "Lead ID", width: 80 },
@@ -264,7 +294,7 @@ const pickRandomFromArray = <T,>(arr: T[]): T => {
 const generateLeads = (count = 20): Lead[] => {
   return Array.from({ length: count }, (_, i) => {
     const companyKey = pickRandomFromArray(
-      Object.keys(COMPANYBADGE) as (keyof typeof COMPANYBADGE)[]
+      Object.keys(COMPANYBADGE) as (keyof typeof COMPANYBADGE)[],
     );
     const firstNames = ["John", "Jane", "Terry", "Michael", "Sarah", "Robert"];
     const lastNames = ["Smith", "Johnson", "Brown", "Taylor", "Howlett"];

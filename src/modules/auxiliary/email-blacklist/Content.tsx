@@ -1,14 +1,17 @@
 "use client";
-import Header from "@/modules/auxiliary/components/Header";
+import Header from "@/components/shared/Header";
 import Table, { TableColumn } from "@/components/table/Table";
 import React, { ReactNode, useState } from "react";
 import Badge from "@/components/shared/Badge";
 import Link from "next/link";
 import CommonDrawer from "@/helpers/CommonDrawer";
+import { ChevronDown } from "lucide-react";
+import Select from "@/components/shared/Select";
 
 export default function Content() {
   const [drawer, setDrawer] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [groupBy, setGroupBy] = React.useState<GroupKey>(null);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
@@ -28,14 +31,69 @@ export default function Content() {
           { label: "Auxiliary Staff", active: false },
           { label: "Email Blacklist", active: true },
         ]}
+        groupBy={groupBy as string | null}
+        onGroupByChange={(value) => setGroupBy(value as GroupKey)}
+        options={groupOptions}
+        printAll
+        csvExport
       />
+      <div className="px-4 pt-10">
+        <div className="flex items-center gap-4 justify-between">
+          {/* Left side selects */}
+          <div className="flex items-center gap-4">
+            <Select
+              wrapperClassName="w-40"
+              placeholder="Lead Type SVG"
+              options={[
+                { label: "Hot", value: "hot" },
+                { label: "General", value: "general" },
+              ]}
+              searchable
+              multiple
+            />
+            <Select
+              wrapperClassName="w-40"
+              placeholder="Lead Type Benton"
+              options={[
+                { label: "Hot", value: "hot" },
+                { label: "General", value: "general" },
+              ]}
+              searchable
+              multiple
+            />
+            <Select
+              wrapperClassName="w-40"
+              placeholder="Lead Type 95RM"
+              options={[
+                { label: "Hot", value: "hot" },
+                { label: "General", value: "general" },
+              ]}
+              searchable
+              multiple
+            />
+          </div>
+        </div>
+      </div>
       {/* Table/Grid */}
       <div className="py-5 px-4 md:px-0">
         <Table
           data={data}
           columns={columns}
           onRowClick={(row) => setDrawer(true)}
+          groupBy={groupBy ?? undefined}
+          collapsibleGroups
+          renderGroupHeader={(group, count) => (
+            <div className="group flex items-center gap-2 px-4 py-2 bg-gray-100 font-semibold cursor-pointer select-none">
+              <ChevronDown
+                size={16}
+                className="text-gray-600 transition-transform duration-200 group-data-[open=true]:rotate-180"
+              />
+              <span>{group}</span>
+              <span className="text-xs text-gray-500">({count})</span>
+            </div>
+          )}
         />
+        <div className="px-5 text-sm">{data.length} leads</div>
       </div>
       <CommonDrawer
         isOpen={drawer}
@@ -73,6 +131,16 @@ interface Lead {
   svg_history_call_notes: ReactNode;
   benton_history_call_notes: ReactNode;
 }
+
+/* ======================
+   Group Options
+====================== */
+type GroupKey = keyof Lead | null;
+const groupOptions: { label: string; value: GroupKey }[] = [
+  { label: "Group", value: null },
+  { label: "Full Name", value: "full_name" },
+  { label: "Company Name", value: "company_name" },
+];
 
 const columns: TableColumn<Lead>[] = [
   { key: "lead", label: "Lead ID", width: 80 },
@@ -281,7 +349,7 @@ const pickRandomFromArray = <T,>(arr: T[]): T => {
 const generateLeads = (count = 20): Lead[] => {
   return Array.from({ length: count }, (_, i) => {
     const companyKey = pickRandomFromArray(
-      Object.keys(COMPANYBADGE) as (keyof typeof COMPANYBADGE)[]
+      Object.keys(COMPANYBADGE) as (keyof typeof COMPANYBADGE)[],
     );
     const firstNames = ["John", "Jane", "Terry", "Michael", "Sarah", "Robert"];
     const lastNames = ["Smith", "Johnson", "Brown", "Taylor", "Howlett"];

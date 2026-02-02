@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { ReactNode, useState, useEffect } from "react";
+import React, {
+  ReactNode,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import clsx from "clsx";
 
 export interface TableColumn<T = any> {
@@ -25,6 +31,11 @@ export interface TableProps<T = any> {
   emptyMessage?: string;
   stickyHeader?: boolean;
   onRowClick?: (row: T, index: number) => void;
+
+  // GROUPING
+  groupBy?: keyof T | ((row: T) => string);
+  collapsibleGroups?: boolean;
+  renderGroupHeader?: (groupKey: string, count: number) => ReactNode;
 }
 
 export default function Table<T>({
@@ -39,30 +50,72 @@ export default function Table<T>({
   emptyMessage = "No data available",
   stickyHeader = true,
   onRowClick,
+
+  groupBy,
+  collapsibleGroups = false,
+  renderGroupHeader,
 }: TableProps<T>) {
   // --- STATE ---
-  // Initialize column widths from props or default
   const [colWidths, setColWidths] = useState<number[]>([]);
-  
-  // Use a Record for row heights to avoid "NaN" or "undefined" errors when data changes
   const [rowHeights, setRowHeights] = useState<Record<number, number>>({});
-  
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [collapsedGroups, setCollapsedGroups] = useState<
+    Record<string, boolean>
+  >({});
 
-  // Sync column widths if columns prop changes
   useEffect(() => {
     setColWidths(columns.map((c) => c.width || 150));
   }, [columns]);
 
-  // --- DATA LOGIC ---
+  // --- PAGINATION ---
   const startIndex = pagination ? (currentPage - 1) * pageSize : 0;
   const pageData = pagination
     ? data.slice(startIndex, startIndex + pageSize)
     : data;
   const totalPages = Math.ceil(data.length / pageSize);
 
-  // --- COLUMN RESIZE HANDLER ---
+  // --- GROUPING ---
+  const groupedData = useMemo(() => {
+    if (!groupBy) return null;
+
+    const fn =
+      typeof groupBy === "function"
+        ? groupBy
+        : (row: T) => {
+            const val = row[groupBy];
+            // Plain string/number
+            if (typeof val === "string" || typeof val === "number")
+              return String(val);
+            // React element with string children
+            if (React.isValidElement(val)) {
+              const element = val as React.ReactElement<{
+                children?: ReactNode;
+              }>;
+              if (typeof element.props.children === "string") {
+                return element.props.children;
+              }
+            }
+            // Fallback
+            return "Others";
+          };
+
+    return data.reduce<Record<string, T[]>>((acc, row) => {
+      const key = fn(row);
+      acc[key] = acc[key] || [];
+      acc[key].push(row);
+      return acc;
+    }, {});
+  }, [data, groupBy]);
+
+  const toggleGroup = useCallback((key: string) => {
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  }, []);
+
+  // --- COLUMN RESIZE ---
   const startColResize = (index: number, e: React.MouseEvent) => {
     e.preventDefault();
     const startX = e.clientX;
@@ -70,10 +123,9 @@ export default function Table<T>({
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientX - startX;
-      const newWidth = Math.max(50, startWidth + delta);
       setColWidths((prev) => {
         const copy = [...prev];
-        copy[index] = newWidth;
+        copy[index] = Math.max(50, startWidth + delta);
         return copy;
       });
     };
@@ -87,20 +139,18 @@ export default function Table<T>({
     document.addEventListener("mouseup", onMouseUp);
   };
 
-  // --- ROW RESIZE HANDLER ---
+  // --- ROW RESIZE ---
   const startRowResize = (globalIndex: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const startY = e.clientY;
-    // Fallback to 48 if no custom height exists yet
     const startHeight = rowHeights[globalIndex] || 48;
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientY - startY;
-      const newHeight = Math.max(32, startHeight + delta);
       setRowHeights((prev) => ({
         ...prev,
-        [globalIndex]: newHeight,
+        [globalIndex]: Math.max(32, startHeight + delta),
       }));
     };
 
@@ -113,36 +163,44 @@ export default function Table<T>({
     document.addEventListener("mouseup", onMouseUp);
   };
 
-  // --- SELECTION HELPERS ---
+  // --- SELECTION ---
   const toggleRow = (index: number) => {
-    const newSet = new Set(selectedRows);
-    if (newSet.has(index)) newSet.delete(index);
-    else newSet.add(index);
-    setSelectedRows(newSet);
+    setSelectedRows((prev) => {
+      const copy = new Set(prev);
+      copy.has(index) ? copy.delete(index) : copy.add(index);
+      return copy;
+    });
   };
 
   const toggleAll = () => {
     if (selectedRows.size === pageData.length) {
       setSelectedRows(new Set());
     } else {
-      const allIndexes = pageData.map((_, i) =>
-        pagination ? startIndex + i : i
-      );
-      setSelectedRows(new Set(allIndexes));
+      setSelectedRows(new Set(pageData.map((_, i) => startIndex + i)));
     }
   };
 
   return (
     <div className="flex flex-col w-full overflow-hidden">
-      <div className="relative w-full overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)] scrollbar-custom">
-        <table className={clsx("border-collapse w-max min-w-full", tableClassName)}>
-          <thead className={clsx(stickyHeader && "sticky top-0 bg-gray-50 z-20", "border-b border-gray-200")}>
+      <div className="relative w-full overflow-auto max-h-[calc(100vh-160px)] scrollbar-custom">
+        <table
+          className={clsx("border-collapse w-max min-w-full", tableClassName)}
+        >
+          <thead
+            className={clsx(
+              stickyHeader && "sticky top-0 bg-gray-50 z-20",
+              "border-b border-gray-200",
+            )}
+          >
             <tr>
               {selectable && (
                 <th className={clsx(cellClassName, "w-12")}>
                   <input
                     type="checkbox"
-                    checked={selectedRows.size === pageData.length && pageData.length > 0}
+                    checked={
+                      selectedRows.size === pageData.length &&
+                      pageData.length > 0
+                    }
                     onChange={toggleAll}
                   />
                 </th>
@@ -150,99 +208,191 @@ export default function Table<T>({
               {columns.map((col, i) => (
                 <th
                   key={i}
-                  className={clsx("relative font-semibold text-left group select-none", cellClassName, col.className)}
+                  className={clsx(
+                    "relative font-semibold text-left group select-none",
+                    cellClassName,
+                    col.className,
+                  )}
                   style={{ width: colWidths[i] || 150 }}
                 >
                   <div className="truncate">{col.label}</div>
                   <div
                     onMouseDown={(e) => startColResize(i, e)}
-                    className="absolute top-0 right-0 h-full w-1 cursor-col-resize bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    className="absolute top-0 right-0 h-full w-1 cursor-col-resize bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
                   />
                 </th>
               ))}
             </tr>
           </thead>
 
-          <tbody className="bg-white">
-            {pageData.length === 0 ? (
+          <tbody>
+            {!groupedData && pageData.length === 0 && (
               <tr>
                 <td
-                  className={clsx(cellClassName, "text-center py-10")}
                   colSpan={columns.length + (selectable ? 1 : 0)}
+                  className={clsx(cellClassName, "text-center py-10")}
                 >
                   {emptyMessage}
                 </td>
               </tr>
-            ) : (
-              pageData.map((row, rowIndex) => {
-                const globalIndex = pagination ? startIndex + rowIndex : rowIndex;
-                const isSelected = selectedRows.has(globalIndex);
-
-                return (
-                  <tr
-                    key={globalIndex}
-                    className={clsx(
-                      "group relative transition-colors hover:bg-gray-50",
-                      isSelected && "bg-blue-50",
-                      rowClassName
-                    )}
-                    // FIX: Safe fallback to 48px to prevent NaN errors
-                    style={{ height: rowHeights[globalIndex] || 48 }}
-                    onClick={() => onRowClick?.(row, globalIndex)}
-                  >
-                    {selectable && (
-                      <td className={clsx(cellClassName, "relative")}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleRow(globalIndex)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                    )}
-
-                    {columns.map((col, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={clsx(cellClassName, "relative truncate")}
-                        style={{ width: colWidths[colIndex] || 150 }}
-                      >
-                        {col.render
-                          ? col.render(row, globalIndex)
-                          : (row[col.key] as ReactNode)}
-
-                        <div
-                          onMouseDown={(e) => startRowResize(globalIndex, e)}
-                          className="absolute bottom-0 left-0 w-full h-0.5 cursor-row-resize bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
             )}
+
+            {groupedData
+              ? Object.entries(groupedData).map(([groupKey, rows]) => {
+                  const isCollapsed = collapsedGroups[groupKey];
+
+                  return (
+                    <React.Fragment key={groupKey}>
+                      <tr className="bg-gray-100">
+                        <td
+                          colSpan={columns.length + (selectable ? 1 : 0)}
+                          className="px-4 py-2 text-sm font-semibold border-b cursor-pointer"
+                          onClick={() =>
+                            collapsibleGroups && toggleGroup(groupKey)
+                          }
+                        >
+                          {renderGroupHeader ? (
+                            renderGroupHeader(groupKey, rows.length)
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              {collapsibleGroups && (
+                                <span>{isCollapsed ? "▶" : "▼"}</span>
+                              )}
+                              <span>{groupKey}</span>
+                              <span className="text-gray-500">
+                                ({rows.length})
+                              </span>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {!isCollapsed &&
+                        rows.map((row, rowIndex) => {
+                          const globalIndex = startIndex + rowIndex;
+                          const isSelected = selectedRows.has(globalIndex);
+
+                          return (
+                            <tr
+                              key={globalIndex}
+                              className={clsx(
+                                "group hover:bg-gray-50",
+                                isSelected && "bg-blue-50",
+                                rowClassName,
+                              )}
+                              style={{
+                                height: rowHeights[globalIndex] || 48,
+                              }}
+                              onClick={() => onRowClick?.(row, globalIndex)}
+                            >
+                              {selectable && (
+                                <td className={cellClassName}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => toggleRow(globalIndex)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </td>
+                              )}
+
+                              {columns.map((col, colIndex) => (
+                                <td
+                                  key={colIndex}
+                                  className={clsx(
+                                    cellClassName,
+                                    "relative truncate",
+                                  )}
+                                  style={{ width: colWidths[colIndex] || 150 }}
+                                >
+                                  {col.render
+                                    ? col.render(row, globalIndex)
+                                    : (row[col.key] as ReactNode)}
+
+                                  <div
+                                    onMouseDown={(e) =>
+                                      startRowResize(globalIndex, e)
+                                    }
+                                    className="absolute bottom-0 left-0 w-full h-0.5 cursor-row-resize bg-blue-500 opacity-0 group-hover:opacity-100"
+                                  />
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        })}
+                    </React.Fragment>
+                  );
+                })
+              : pageData.map((row, rowIndex) => {
+                  const globalIndex = startIndex + rowIndex;
+                  const isSelected = selectedRows.has(globalIndex);
+
+                  return (
+                    <tr
+                      key={globalIndex}
+                      className={clsx(
+                        "group hover:bg-gray-50",
+                        isSelected && "bg-blue-50",
+                        rowClassName,
+                      )}
+                      style={{ height: rowHeights[globalIndex] || 48 }}
+                      onClick={() => onRowClick?.(row, globalIndex)}
+                    >
+                      {selectable && (
+                        <td className={cellClassName}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleRow(globalIndex)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </td>
+                      )}
+
+                      {columns.map((col, colIndex) => (
+                        <td
+                          key={colIndex}
+                          className={clsx(cellClassName, "relative truncate")}
+                          style={{ width: colWidths[colIndex] || 150 }}
+                        >
+                          {col.render
+                            ? col.render(row, globalIndex)
+                            : (row[col.key] as ReactNode)}
+
+                          <div
+                            onMouseDown={(e) => startRowResize(globalIndex, e)}
+                            className="absolute bottom-0 left-0 w-full h-0.5 cursor-row-resize bg-blue-500 opacity-0 group-hover:opacity-100"
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
           </tbody>
         </table>
       </div>
 
       {pagination && totalPages > 1 && (
-        <div className="flex justify-between items-center px-4 py-3 bg-white border-t border-gray-200 text-sm">
-          <div className="text-gray-500">
-            Showing {startIndex + 1} to {Math.min(startIndex + pageSize, data.length)} of {data.length} entries
-          </div>
+        <div className="flex justify-between items-center px-4 py-3 border-t bg-white text-sm">
+          <span>
+            Showing {startIndex + 1} to{" "}
+            {Math.min(startIndex + pageSize, data.length)} of {data.length}
+          </span>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-40"
+              className="px-3 py-1 border rounded"
             >
               Previous
             </button>
-            <span className="flex items-center px-2">{currentPage} / {totalPages}</span>
+            <span>
+              {currentPage} / {totalPages}
+            </span>
             <button
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-40"
+              className="px-3 py-1 border rounded"
             >
               Next
             </button>

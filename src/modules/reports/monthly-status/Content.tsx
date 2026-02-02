@@ -5,18 +5,28 @@ import StatCard from "@/components/shared/StatCard";
 import React from "react";
 import Chart from "./Chart";
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 export default function Content() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
-      {/* Sticky Header */}
-      <div className="sticky top-4 md:top-0 z-30 bg-white border-b border-gray-200 p-4">
+      {/* Fixed header */}
+      <div className="sticky top-4 md:top-0 z-30 bg-white border-b border-gray-200 p-4 flex items-start">
         <Breadcrumb
           items={[
             { label: "Reports", active: false },
             { label: "Monthly Status & Points", active: true },
           ]}
         />
+
+        <Link
+          href="/crm/sidago-crm/leaderborad"
+          className="ml-auto text-sm font-semibold rounded bg-black text-white px-4 py-2 inline-flex items-center"
+        >
+          <span>Daily Status</span>
+          <ChevronRight size={14} className="ml-2" />
+        </Link>
       </div>
 
       {/* Scrollable main content */}
@@ -65,7 +75,7 @@ export default function Content() {
               </div>
               <Divider />
             </div>
-          )
+          ),
         )}
       </div>
     </div>

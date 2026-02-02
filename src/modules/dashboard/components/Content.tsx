@@ -8,6 +8,15 @@ import Breadcrumb from "@/components/shared/Breadcrumb";
 import Badge from "@/components/shared/Badge";
 import Link from "next/link";
 import CommonDrawer from "@/helpers/CommonDrawer";
+import {
+  Menu as HeadlessMenu,
+  MenuButton as HeadlessMenuButton,
+  MenuItems as HeadlessMenuItems,
+  MenuItem as HeadlessMenuItem,
+  Portal,
+} from "@headlessui/react";
+import { ChevronDown, ChevronRight, Ellipsis, Funnel, Printer } from "lucide-react";
+import Dropdown from "@/components/shared/Dropdown";
 
 export default function Content() {
   const [drawer, setDrawer] = useState(false);
@@ -21,13 +30,34 @@ export default function Content() {
   return (
     <div className="flex flex-col h-screen">
       {/* Fixed Header */}
-      <div className="sticky top-4 md:top-0 z-30 p-4 bg-white border-b border-gray-200 flex items-center">
+      <div className="sticky top-4 md:top-0 z-30 p-4 bg-white border-b border-gray-200 flex items-center justify-between">
+        {/* Left: Breadcrumb */}
         <Breadcrumb
           items={[
             { label: "Tom Silver", active: false },
             { label: "Dashboard", active: true },
           ]}
         />
+
+        {/* Right: More menu */}
+        <HeadlessMenu as="div" className="relative">
+          <HeadlessMenuButton className="outline-0 ring-0 cursor-pointer border border-gray-200 rounded-md p-2">
+            <Ellipsis size={16} />
+          </HeadlessMenuButton>
+
+          <Portal>
+            <HeadlessMenuItems className="outline-0 ring-0 absolute z-50 w-65 rounded-md bg-white shadow-lg right-0 top-10">
+              <div className="p-4 flex flex-col gap-1">
+                <HeadlessMenuItem
+                  as="button"
+                  className="flex items-center gap-2 px-3 py-2 outline-0 ring-0 hover:bg-gray-100"
+                >
+                  <Printer size={14} /> Print this page
+                </HeadlessMenuItem>
+              </div>
+            </HeadlessMenuItems>
+          </Portal>
+        </HeadlessMenu>
       </div>
 
       {/* Scrollable Main Content */}
@@ -51,32 +81,58 @@ export default function Content() {
         <Divider />
 
         <div className="w-full space-y-5 mt-10 mb-10">
-          <div className="text-xl font-medium">
-            <p>Call Details</p>
+          <div className="flex items-center justify-between">
+            <div className="text-xl font-medium">
+              <p>Call Details</p>
+            </div>
+            <Link
+              href="#"
+              className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 transition-colors text-white text-sm font-medium px-3 py-2 rounded-md"
+            >
+              Go to export leads page
+              <ChevronRight size={16} />
+            </Link>
           </div>
 
           <div>
-            <div className="flex items-center gap-4">
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Lead Type"
-                options={[
-                  { label: "Hot", value: "hot" },
-                  { label: "General", value: "general" },
-                ]}
-                searchable
-                multiple
-              />
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Call Result"
-                options={[
-                  { label: "Interested", value: "hot" },
-                  { label: "No answer", value: "general" },
-                ]}
-                searchable
-                multiple
-              />
+            <div className="flex items-center gap-4 justify-between">
+              {/* Left side selects */}
+              <div className="flex items-center gap-4">
+                <Select
+                  wrapperClassName="w-40"
+                  placeholder="Lead Type"
+                  options={[
+                    { label: "Hot", value: "hot" },
+                    { label: "General", value: "general" },
+                  ]}
+                  searchable
+                  multiple
+                />
+                <Select
+                  wrapperClassName="w-40"
+                  placeholder="Call Result"
+                  options={[
+                    { label: "Interested", value: "interested" },
+                    { label: "No answer", value: "no-answer" },
+                  ]}
+                  searchable
+                  multiple
+                />
+              </div>
+
+              {/* Right side filter using Select */}
+              <div className="flex items-center gap-2 w-40">
+                <Select
+                  wrapperClassName="w-full"
+                  placeholder="Filter"
+                  options={[
+                    { label: "All", value: "all" },
+                    { label: "Lead Type", value: "large-companies" },
+                    { label: "Timezone", value: "exclude-canada" },
+                  ]}
+                />
+                <Funnel size={16} />
+              </div>
             </div>
 
             <div className="py-5">
@@ -97,27 +153,20 @@ export default function Content() {
           </div>
 
           <div>
-            <div className="flex items-center gap-4">
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Lead Type"
-                options={[
-                  { label: "Hot", value: "hot" },
-                  { label: "General", value: "general" },
-                ]}
-                searchable
-                multiple
-              />
-              <Select
-                wrapperClassName="w-40"
-                placeholder="Call Result"
-                options={[
-                  { label: "Interested", value: "hot" },
-                  { label: "No answer", value: "general" },
-                ]}
-                searchable
-                multiple
-              />
+            <div className="flex items-center justify-end gap-4">
+              {/* Right side filter using Select */}
+              <div className="flex items-center gap-2 w-40">
+                <Select
+                  wrapperClassName="w-full"
+                  placeholder="Filter"
+                  options={[
+                    { label: "All", value: "all" },
+                    { label: "Lead Type", value: "large-companies" },
+                    { label: "Timezone", value: "exclude-canada" },
+                  ]}
+                />
+                <Funnel size={16} />
+              </div>
             </div>
 
             <div className="py-5">
@@ -125,6 +174,18 @@ export default function Content() {
                 data={users}
                 columns={columns}
                 onRowClick={() => setDrawer(true)}
+                groupBy={() => "All Leads"} // <-- all rows go under this group
+                collapsibleGroups
+                renderGroupHeader={(group, count) => (
+                  <div className="group flex items-center gap-2 px-4 py-2 bg-gray-100 font-semibold cursor-pointer select-none">
+                    <ChevronDown
+                      size={14}
+                      className="text-gray-600 transition-transform duration-200 group-data-[open=true]:rotate-180"
+                    />
+                    <span>{group}</span>
+                    <span className="text-xs text-gray-500">({count})</span>
+                  </div>
+                )}
               />
             </div>
           </div>

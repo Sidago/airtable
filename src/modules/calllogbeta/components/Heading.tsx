@@ -1,6 +1,7 @@
 "use client";
 import Dropdown from "@/components/shared/Dropdown";
-import { Funnel } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 export default function Heading() {
@@ -22,25 +23,21 @@ export default function Heading() {
         </div>
 
         {/* Right section */}
-        <div className="w-full md:w-auto relative">
-          {/* flex container to hold dropdown + funnel */}
-          <div className="w-full">
-            <Dropdown
-              label="All"
-              buttonClassName="text-gray-950 font-normal w-full pr-10" // space for funnel
-              menuClassName="w-full md:w-60"
-              items={[
-                { label: "All", value: "all" },
-                { label: "Large Companies", value: "large-companies" },
-                { label: "Exclude Canada", value: "exclude-canada" },
-              ]}
-            />
-            {/* Funnel Icon absolute on the right */}
-            <Funnel
-              size={16}
-              className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"
-            />
-          </div>
+        <div className="w-full md:w-auto relative gap-2 flex">
+          <Link
+            href="/crm/sidago-crm/agent1/calls-log-beta"
+            className="inline-flex items-center gap-1 bg-gray-200 p-2 rounded text-sm font-normal"
+          >
+            <span>Large Companies</span>
+            <ChevronRight size={14} className="opacity-70" />
+          </Link>
+          <Link
+            href="/crm/sidago-crm/agent1/calls-log-beta"
+            className="inline-flex items-center gap-1 bg-gray-200 p-2 rounded text-sm font-normal"
+          >
+            <span>Exclude Canada</span>
+            <ChevronRight size={14} className="opacity-70" />
+          </Link>
         </div>
       </div>
     </div>

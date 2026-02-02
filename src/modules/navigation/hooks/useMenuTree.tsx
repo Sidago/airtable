@@ -35,27 +35,28 @@ const AUXILIARY_BASE_SUBMENUS = [
   { label: "Level 2 Update", path: "level-update" },
   { label: "Level 2 - History", path: "level-history" },
   { label: "Fix Leads(V4)", path: "fix-lead" },
-  { label: "Add Company", path: "add-company" },
-  { label: "Update Company", path: "update-company" },
+  { label: "Blocked Email To", path: "blocked-email" },
+  { label: "Add a New Company", path: "add-company" },
   { label: "All Leads", path: "leads" },
   { label: "Create Additional Contact", path: "additional-contact" },
   { label: "Email Blacklist Directory", path: "email-blacklist" },
   { label: "Dead/Missing Email", path: "dead-email" },
+  { label: "Update Company", path: "update-company" },
 ] as const;
 
 const REPORT_SUBMENUS = [
   { label: "Currently Hot Leads - SVG", path: "current-leads-svg" },
-  { label: "Currently Hot Leads - Benton", path: "current-leads-benton" },
   { label: "Currently Hot Leads - 95RM", path: "current-leads-95rm" },
-  { label: "Unassigned Hot Leads - SVG", path: "unassigned-leads-svg" },
-  { label: "Unassigned Hot Leads - Benton", path: "unassigned-leads-benton" },
-  { label: "Unassigned Hot Leads - 95RM", path: "unassigned-leads-95rm" },
+  { label: "Currently Hot Leads - Benton", path: "current-leads-benton" },
   { label: "Recent Interest - SVG", path: "recent-interest-svg" },
-  { label: "Recent Interest - Benton", path: "recent-interest-benton" },
   { label: "Recent Interest - 95RM", path: "recent-interest-95rm" },
+  { label: "Recent Interest - Benton", path: "recent-interest-benton" },
+  { label: "Unassigned Hot Leads - SVG", path: "unassigned-leads-svg" },
+  { label: "Unassigned Hot Leads - 95RM", path: "unassigned-leads-95rm" },
+  { label: "Unassigned Hot Leads - Benton", path: "unassigned-leads-benton" },
   { label: "Ever been Hot - SVG", path: "ever-been-hot-svg" },
-  { label: "Ever been Hot - Benton", path: "ever-been-hot-benton" },
   { label: "Ever been Hot - 95RM", path: "ever-been-hot-95rm" },
+  { label: "Ever been Hot - Benton", path: "ever-been-hot-benton" },
   { label: "Leaderborad", path: "leaderborad" },
   { label: "Monthly Stats. & Points", path: "monthly-status" },
   { label: "Closed Contacts", path: "closed-contact" },
@@ -94,10 +95,6 @@ export default function useMenuTree() {
     }
   }, [token]);
 
-  /* ======================================================
-     ROLE-BASED AGENT SOURCE
-  ====================================================== */
-
   useEffect(() => {
     if (!user) return;
 
@@ -109,7 +106,7 @@ export default function useMenuTree() {
   }, [user, fetchAgents]);
 
   /* ======================================================
-     AGENT MODELS
+     AGENTS
   ====================================================== */
 
   const agents = useMemo(
@@ -118,30 +115,88 @@ export default function useMenuTree() {
         id: username,
         label: username.replace(/[-_]/g, " "),
       })),
-    [agentList]
+    [agentList],
   );
 
   /* ======================================================
-     MENUS (PURE DERIVATION)
+     MENUS
   ====================================================== */
 
   const menus: MenuItem[] = useMemo(() => {
     if (!user || agents.length === 0) return [];
 
-    const agentMenus: MenuItem[] = agents.map((agent) => {
-      const submenus: SubmenuItem[] = AGENT_MENU_ITEMS.map((label) => ({
+    /* ---------------------------
+       Agent Menus
+    ---------------------------- */
+
+    const agentMenus: MenuItem[] = agents.map((agent) => ({
+      id: agent.id,
+      icon: <User size={16} />,
+      label: agent.label,
+      routes: AGENT_MENU_ITEMS.map(
+        (label) => `/crm/${CRM_ID}/${agent.id}/${AGENT_MENU_PATHS[label]}`,
+      ),
+      submenus: AGENT_MENU_ITEMS.map((label) => ({
         label,
         href: `/crm/${CRM_ID}/${agent.id}/${AGENT_MENU_PATHS[label]}`,
-      }));
+      })),
+    }));
 
-      return {
-        id: agent.id,
-        icon: <User size={16} />,
-        label: agent.label,
-        routes: submenus.map((s) => s.href),
-        submenus,
-      };
-    });
+    /* ---------------------------
+       Dynamic SMS & Email (SMS first)
+    ---------------------------- */
+
+    const smsSubmenus: SubmenuItem[] = agents.map((agent) => ({
+      label: `SMS-${agent.label}`,
+      href: `/crm/${CRM_ID}/${agent.id}/sms`,
+    }));
+
+    const emailSubmenus: SubmenuItem[] = agents.map((agent) => ({
+      label: `Email-${agent.label}`,
+      href: `/crm/${CRM_ID}/${agent.id}/email`,
+    }));
+
+    const smsEmailSubmenus: SubmenuItem[] = [
+      ...smsSubmenus,
+      ...emailSubmenus,
+    ];
+
+    /* ---------------------------
+       Auxiliary Menus (inject after Fix Leads)
+    ---------------------------- */
+
+    const auxiliarySubmenus: SubmenuItem[] = AUXILIARY_BASE_SUBMENUS.flatMap(
+      (item) => {
+        if (item.label === "Fix Leads(V4)") {
+          return [
+            {
+              label: item.label,
+              href: `/crm/${CRM_ID}/${item.path}`,
+            },
+            ...smsEmailSubmenus,
+          ];
+        }
+
+        return [
+          {
+            label: item.label,
+            href: `/crm/${CRM_ID}/${item.path}`,
+          },
+        ];
+      },
+    );
+
+    const auxiliaryMenu: MenuItem = {
+      id: "auxiliary",
+      icon: <BookOpen size={16} />,
+      label: "Auxiliary Staff",
+      routes: auxiliarySubmenus.map((s) => s.href),
+      submenus: auxiliarySubmenus,
+    };
+
+    /* ---------------------------
+       Report Menus
+    ---------------------------- */
 
     const reportMenu: MenuItem = {
       id: "reports",
@@ -154,18 +209,9 @@ export default function useMenuTree() {
       })),
     };
 
-    const auxiliaryMenu: MenuItem = {
-      id: "auxiliary",
-      icon: <BookOpen size={16} />,
-      label: "Auxiliary Staff",
-      routes: AUXILIARY_BASE_SUBMENUS.map(
-        (m) => `/crm/${CRM_ID}/${m.path}`
-      ),
-      submenus: AUXILIARY_BASE_SUBMENUS.map((m) => ({
-        label: m.label,
-        href: `/crm/${CRM_ID}/${m.path}`,
-      })),
-    };
+    /* ---------------------------
+       Role-based return
+    ---------------------------- */
 
     if (user.roles.includes("backoffice")) {
       return [reportMenu];
@@ -179,7 +225,7 @@ export default function useMenuTree() {
   }, [user, agents]);
 
   /* ======================================================
-     GLOBAL LOADER (SINGLE SOURCE OF TRUTH)
+     LOADER
   ====================================================== */
 
   const isLoading =
@@ -211,7 +257,7 @@ export default function useMenuTree() {
   const isParentActive = useCallback(
     (routes: string[]) =>
       !!activeTab && routes.some((r) => activeTab.startsWith(r)),
-    [activeTab]
+    [activeTab],
   );
 
   return {

@@ -2,7 +2,6 @@
 
 import Table, { TableColumn } from "@/components/table/Table";
 import useDummy from "@/helpers/dummy";
-import Header from "@/modules/auxiliary/components/Header";
 import React, { ReactNode } from "react";
 import {
   Listbox,
@@ -12,6 +11,7 @@ import {
 } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
 import clsx from "clsx";
+import Header from "@/components/shared/Header";
 
 /* ======================
    Types
@@ -43,35 +43,33 @@ const columns: TableColumn<Lead>[] = [
   { key: "phone", label: "Phone", width: 140 },
   { key: "timezone", label: "Timezone", width: 100 },
   { key: "contact_type", label: "Contact Type", width: 120 },
-  { key: "lead_type", label: "SVG Lead Type", width: 130 },
-  { key: "tobe_called", label: "SVG To Be Called", width: 140 },
+  { key: "lead_type", label: "Lead Type", width: 130 },
+  { key: "tobe_called", label: "To Be Called", width: 140 },
   { key: "date_become_hot", label: "Date Become Hot", width: 140 },
   { key: "last_action", label: "Last Action", width: 180 },
+];
+
+/* ======================
+   Group Options
+====================== */
+type GroupKey = keyof Lead | null;
+const groupOptions: { label: string; value: GroupKey }[] = [
+  { label: "Group", value: null },
+  { label: "Company Name", value: "company_name" },
+  { label: "Timezone", value: "timezone" },
+  { label: "Contact Type", value: "contact_type" },
+  { label: "Lead Type", value: "lead_type" },
+  { label: "Phone", value: "phone" },
 ];
 
 /* ======================
    Component
 ====================== */
 export default function Content() {
-  const {
-    leadID,
-    company,
-    symbol,
-    name,
-    email,
-    phone,
-    timeZone,
-    contactType,
-    leadType,
-    tobeCalled,
-    randomDate,
-  } = useDummy();
-
+  const dummy = useDummy();
   const [data, setData] = React.useState<Lead[]>([]);
+  const [groupBy, setGroupBy] = React.useState<GroupKey>(null);
 
-  // -----------------------------
-  // Tabs
-  // -----------------------------
   const tabs = [
     "SVG Current",
     "SVG Historical",
@@ -79,32 +77,28 @@ export default function Content() {
     "Benton Historical",
     "All Closed Contacts",
   ];
-  const [currentTab, setCurrentTab] = React.useState(tabs[0]); // default to first tab
-
-  /* Generate dummy leads */
-  const generateLeads = (count = 20): Lead[] => {
-    return Array.from({ length: count }, () => {
-      const company_name = company();
-      const company_symbol = symbol(company_name);
-      return {
-        lead: leadID(),
-        company_name,
-        company_symbol,
-        full_name: name(),
-        email: email(),
-        phone: phone(),
-        timezone: timeZone(),
-        contact_type: contactType(),
-        lead_type: leadType(),
-        tobe_called: tobeCalled(),
-        date_become_hot: randomDate(),
-        last_action: randomDate("hm"),
-      };
-    });
-  };
+  const [currentTab, setCurrentTab] = React.useState(tabs[0]);
 
   React.useEffect(() => {
-    setData(generateLeads(20));
+    setData(
+      Array.from({ length: 20 }, () => {
+        const company_name = dummy.company();
+        return {
+          lead: dummy.leadID(),
+          company_name,
+          company_symbol: dummy.symbol(company_name),
+          full_name: dummy.name(),
+          email: dummy.email(),
+          phone: dummy.phone(),
+          timezone: dummy.timeZone(),
+          contact_type: dummy.contactType(),
+          lead_type: dummy.leadType(),
+          tobe_called: dummy.tobeCalled(),
+          date_become_hot: dummy.randomDate(),
+          last_action: dummy.randomDate("hm"),
+        };
+      }),
+    );
   }, []);
 
   return (
@@ -114,53 +108,45 @@ export default function Content() {
           { label: "Reports", active: false },
           { label: "Closed Contracts", active: true },
         ]}
+        groupBy={groupBy as string | null}
+        printAll
+        onGroupByChange={(value) => setGroupBy(value as GroupKey)}
+        options={groupOptions}
       />
 
-      {/* navigation tab */}
+      {/* Tabs */}
       <div className="relative mt-8 md:mt-0 px-4">
-        {/* Large screens: horizontal tabs */}
-        <div className="hidden sm:flex gap-4 overflow-x-auto border-b border-gray-100 text-sm scrollbar-none">
+        <div className="hidden sm:flex gap-4 border-b text-sm">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setCurrentTab(tab)}
               className={clsx(
-                "relative shrink-0 px-3 py-2 transition-colors cursor-pointer",
+                "px-3 py-2",
                 currentTab === tab
-                  ? "text-gray-900 font-semibold"
-                  : "text-gray-500 hover:text-gray-800"
+                  ? "text-gray-900 font-semibold border-b-2 border-blue-400"
+                  : "text-gray-500",
               )}
             >
               {tab}
-              {/* Active Tab Bottom Border */}
-              {currentTab === tab && (
-                <span className="absolute left-0 bottom-0 w-full h-0.5 bg-blue-400"></span>
-              )}
             </button>
           ))}
         </div>
 
-        {/* Small screens: dropdown */}
-        <div className="sm:hidden w-full">
+        {/* Mobile dropdown */}
+        <div className="sm:hidden mt-2">
           <Listbox value={currentTab} onChange={setCurrentTab}>
             <div className="relative">
-              <ListboxButton className="relative w-full cursor-pointer bg-white border border-gray-200 rounded px-4 py-2 text-left focus:outline-none ring-0 flex justify-between items-center">
+              <ListboxButton className="w-full border border-gray-200 rounded px-4 py-2 flex justify-between items-center">
                 <span>{currentTab}</span>
                 <ChevronDown size={16} />
               </ListboxButton>
-
-              <ListboxOptions className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-40 overflow-auto z-[100]">
+              <ListboxOptions className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-40 overflow-auto z-50">
                 {tabs.map((tab) => (
                   <ListboxOption
                     key={tab}
                     value={tab}
-                    className={({ active, selected }) =>
-                      clsx(
-                        "cursor-pointer px-4 py-2",
-                        active && "bg-blue-100",
-                        selected && "font-semibold text-blue-600"
-                      )
-                    }
+                    className="cursor-pointer px-4 py-2 hover:bg-blue-100"
                   >
                     {tab}
                   </ListboxOption>
@@ -171,13 +157,25 @@ export default function Content() {
         </div>
       </div>
 
-      {/* Table/Grid */}
+      {/* Table */}
       <div className="py-5 px-4 md:px-0">
         <Table
           data={data}
           columns={columns}
-          onRowClick={(row) => console.log("Row clicked", row)}
+          groupBy={groupBy ?? undefined}
+          collapsibleGroups
+          renderGroupHeader={(group, count) => (
+            <div className="group flex items-center gap-2 px-4 py-2 bg-gray-100 font-semibold cursor-pointer select-none">
+              <ChevronDown
+                size={16}
+                className="text-gray-600 transition-transform duration-200 group-data-[open=true]:rotate-180"
+              />
+              <span>{group}</span>
+              <span className="text-xs text-gray-500">({count})</span>
+            </div>
+          )}
         />
+        <div className="px-5 text-sm">{data.length} leads</div>
       </div>
     </div>
   );

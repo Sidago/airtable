@@ -8,15 +8,30 @@ import Breadcrumb from "@/components/shared/Breadcrumb";
 import Badge from "@/components/shared/Badge";
 import Link from "next/link";
 import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from "@headlessui/react";
+import {
   Menu as HeadlessMenu,
   MenuButton as HeadlessMenuButton,
   MenuItems as HeadlessMenuItems,
   MenuItem as HeadlessMenuItem,
   Portal,
 } from "@headlessui/react";
-import { ChevronRight, Ellipsis, Funnel, Printer } from "lucide-react";
+import { ChevronDown, ChevronRight, Ellipsis, Funnel, Printer } from "lucide-react";
+import clsx from "clsx";
 
 export default function Content() {
+  const tabs = [
+    "24hr Sent to Fix",
+    "24hr Fix",
+    "24hr New",
+    "24hr Can't Locate",
+  ];
+  const [currentTab, setCurrentTab] = React.useState(tabs[0]);
+  
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Sticky Header */}
@@ -74,32 +89,19 @@ export default function Content() {
 
           <Divider />
 
-          <div className="w-full space-y-5 mt-4 mb-10">
-            <div className="text-xl font-medium">
-              <p>Fixed Leads</p>
-              <p className="text-xs text-gray-400">{"Today's"} Fixed Leads </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch">
-              <StatCard label="Count" count={10} />
-            </div>
-          </div>
-
-          <Divider />
-
           <div className="w-full space-y-5 mt-10 mb-10">
             <div className="flex items-center justify-between">
-            <div className="text-xl font-medium">
-              <p>Fix Queue</p>
+              <div className="text-xl font-medium">
+                <p>Fix Queue</p>
+              </div>
+              <Link
+                href="/crm/sidago-crm/fix-lead"
+                className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 transition-colors text-white text-sm font-medium px-3 py-2 rounded-md"
+              >
+                Fix Queue
+                <ChevronRight size={16} />
+              </Link>
             </div>
-            <Link
-              href="/crm/sidago-crm/24-hr-leads-details"
-              className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 transition-colors text-white text-sm font-medium px-3 py-2 rounded-md"
-            >
-              24hr Leads Detail
-              <ChevronRight size={16} />
-            </Link>
-          </div>
 
             {/* Filter Row */}
             <div>
@@ -156,6 +158,48 @@ export default function Content() {
                   <Funnel size={16} />
                 </div>
               </div>
+              {/* Tabs */}
+              <div className="relative mt-8 md:mt-0 px-4">
+                <div className="hidden sm:flex gap-4 text-sm">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setCurrentTab(tab)}
+                      className={clsx(
+                        "px-3 py-2 cursor-pointer",
+                        currentTab === tab
+                          ? "text-gray-900 font-semibold border-b-2 border-gray-800"
+                          : "text-gray-500",
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile dropdown */}
+                <div className="sm:hidden mt-2">
+                  <Listbox value={currentTab} onChange={setCurrentTab}>
+                    <div className="relative">
+                      <ListboxButton className="w-full border border-gray-200 rounded px-4 py-2 flex justify-between items-center">
+                        <span>{currentTab}</span>
+                        <ChevronDown size={16} />
+                      </ListboxButton>
+                      <ListboxOptions className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-40 overflow-auto z-50">
+                        {tabs.map((tab) => (
+                          <ListboxOption
+                            key={tab}
+                            value={tab}
+                            className="cursor-pointer px-4 py-2 hover:bg-blue-100"
+                          >
+                            {tab}
+                          </ListboxOption>
+                        ))}
+                      </ListboxOptions>
+                    </div>
+                  </Listbox>
+                </div>
+              </div>
 
               {/* Table */}
               <div className="py-5">
@@ -195,7 +239,7 @@ const columns: TableColumn<AssignedLead>[] = [
   { key: "phone", label: "Phone", width: 140 },
   { key: "fix_lead", label: "Fixed Lead", width: 80 },
   { key: "other_contact", label: "Other Contacts", width: 80 },
-  { key: "fix_entry_date", label: "Fix Entry Date", width: 150 },
+  // { key: "fix_entry_date", label: "Fix Entry Date", width: 150 },
 ];
 
 const TIMEZONEBADGE = {

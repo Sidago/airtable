@@ -16,6 +16,7 @@ interface FormValues {
   campaignType: string;
   toBeLogged: boolean;
   notes: string;
+  agent: string[];
 }
 
 const DEFAULT_FORM: FormValues = {
@@ -26,6 +27,7 @@ const DEFAULT_FORM: FormValues = {
   campaignType: "",
   toBeLogged: false,
   notes: "",
+  agent: [],
 };
 
 export default function Content() {
@@ -129,7 +131,7 @@ export default function Content() {
               onChange={(v: string | string[]) =>
                 handleInputChange(
                   "toBeCalledOnSelect",
-                  Array.isArray(v) ? v[0] : v
+                  Array.isArray(v) ? v[0] : v,
                 )
               }
             />
@@ -145,6 +147,28 @@ export default function Content() {
               value={formValues.campaignType}
               onChange={(v: string | string[]) =>
                 handleInputChange("campaignType", Array.isArray(v) ? v[0] : v)
+              }
+            />
+
+            <Select
+              label={<span className="text-sm font-semibold">Agent</span>}
+              multiple={true} // <-- enable multiple selection
+              options={[
+                { label: "Tom Silver", value: "Tom Silver" },
+                { label: "Jane Doe", value: "Jane Doe" },
+                { label: "John Smith", value: "John Smith" },
+                { label: "Alice Johnson", value: "Alice Johnson" },
+                { label: "Bob Williams", value: "Bob Williams" },
+              ]}
+              value={
+                formValues.agent
+                  ? Array.isArray(formValues.agent)
+                    ? formValues.agent
+                    : [formValues.agent]
+                  : []
+              }
+              onChange={(v: string | string[]) =>
+                handleInputChange("agent", Array.isArray(v) ? v : [v])
               }
             />
 

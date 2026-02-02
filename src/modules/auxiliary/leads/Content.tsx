@@ -1,13 +1,15 @@
 "use client";
-import Header from "@/modules/auxiliary/components/Header";
 import Table, { TableColumn } from "@/components/table/Table";
 import React, { ReactNode, useState } from "react";
 import Badge from "@/components/shared/Badge";
 import Link from "next/link";
 import CommonDrawer from "@/helpers/CommonDrawer";
+import Header from "@/components/shared/Header";
+import { ChevronDown } from "lucide-react";
 
 export default function Content() {
   const [drawer, setDrawer] = useState(false);
+  const [groupBy, setGroupBy] = React.useState<GroupKey>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -28,6 +30,9 @@ export default function Content() {
           { label: "Auxiliary Staff", active: false },
           { label: "All Leads", active: true },
         ]}
+        groupBy={groupBy as string | null}
+        onGroupByChange={(value) => setGroupBy(value as GroupKey)}
+        options={groupOptions}
       />
       {/* Table/Grid */}
       <div className="py-5 px-4 md:px-0">
@@ -35,7 +40,20 @@ export default function Content() {
           data={data}
           columns={columns}
           onRowClick={(row) => setDrawer(true)}
+          groupBy={groupBy ?? undefined}
+          collapsibleGroups
+          renderGroupHeader={(group, count) => (
+            <div className="group flex items-center gap-2 px-4 py-2 bg-gray-100 font-semibold cursor-pointer select-none">
+              <ChevronDown
+                size={16}
+                className="text-gray-600 transition-transform duration-200 group-data-[open=true]:rotate-180"
+              />
+              <span>{group}</span>
+              <span className="text-xs text-gray-500">({count})</span>
+            </div>
+          )}
         />
+        <div className="px-5 text-sm">{data.length} leads</div>
       </div>
       <CommonDrawer
         isOpen={drawer}
@@ -81,6 +99,16 @@ interface Lead {
   last_action: string;
 }
 
+/* ======================
+   Group Options
+====================== */
+type GroupKey = keyof Lead | null;
+const groupOptions: { label: string; value: GroupKey }[] = [
+  { label: "Group", value: null },
+  { label: "Full Name", value: "full_name" },
+  { label: "Company Name", value: "company_name" },
+];
+
 const columns: TableColumn<Lead>[] = [
   { key: "lead", label: "Lead ID", width: 80 },
   { key: "company_symbol", label: "Company Symbol", width: 80 },
@@ -91,8 +119,8 @@ const columns: TableColumn<Lead>[] = [
   { key: "svg_tobe_called", label: "SVG To Be Called", width: 140 },
   { key: "benton_lead_type", label: "Benton Lead Type", width: 150 },
   { key: "benton_tobe_called", label: "Benton To Be Called", width: 160 },
-  { key: "rm_lead_type", label: "RM Lead Type", width: 130 },
-  { key: "rm_tobe_called", label: "RM To Be Called", width: 140 },
+  { key: "rm_lead_type", label: "95RM Lead Type", width: 130 },
+  { key: "rm_tobe_called", label: "95RM To Be Called", width: 140 },
   { key: "email", label: "Email", width: 220 },
   { key: "phone", label: "Phone", width: 140 },
   { key: "timezone", label: "Timezone", width: 100 },
@@ -283,7 +311,7 @@ const pickRandomFromArray = <T,>(arr: T[]): T => {
 const generateLeads = (count = 20): Lead[] => {
   return Array.from({ length: count }, (_, i) => {
     const companyKey = pickRandomFromArray(
-      Object.keys(COMPANYBADGE) as (keyof typeof COMPANYBADGE)[]
+      Object.keys(COMPANYBADGE) as (keyof typeof COMPANYBADGE)[],
     );
     const firstNames = ["John", "Jane", "Terry", "Michael", "Sarah", "Robert"];
     const lastNames = ["Smith", "Johnson", "Brown", "Taylor", "Howlett"];
