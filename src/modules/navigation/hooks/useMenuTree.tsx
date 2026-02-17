@@ -74,6 +74,7 @@ export default function useMenuTree() {
   const showLoader = useLoaderStore((s) => s.showLoader);
   const hideLoader = useLoaderStore((s) => s.hideLoader);
 
+  const [rawAgentList,setRawAgentList] = useState([]);
   const [agentList, setAgentList] = useState<string[]>([]);
   const [isFetchingAgents, setIsFetchingAgents] = useState(false);
 
@@ -87,6 +88,7 @@ export default function useMenuTree() {
     setIsFetchingAgents(true);
     try {
       const data = await agentService.agentList(token);
+      setRawAgentList(data);
       setAgentList(data.map((a: any) => a.username));
     } catch {
       setAgentList([]);
@@ -265,5 +267,6 @@ export default function useMenuTree() {
     activeParentId,
     activeTab,
     isParentActive,
+    rawAgentList
   };
 }

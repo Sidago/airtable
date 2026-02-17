@@ -29,7 +29,6 @@ export function useAuth() {
 
         // 🔁 Try refresh token
         const refreshed = await authService.refreshToken(tokens.refresh_token);
-        console.log(refreshed)
 
         if (!refreshed?.access_token) {
           logout.mutate();

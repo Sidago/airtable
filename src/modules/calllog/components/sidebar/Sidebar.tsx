@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Header from "./Header";
 import SearchArea from "./SearchArea";
 import Menu from "./Menu";
@@ -10,6 +11,11 @@ import AddLeadHeader from "@/modules/lead/components/add/Header";
 import AddLeadFooter from "@/modules/lead/components/add/Footer";
 import dynamic from "next/dynamic";
 import DateInput from "@/components/shared/DateInput";
+import { useLeadType } from "@/modules/lead/hooks/useLeadType";
+import { useContactType } from "@/modules/lead/hooks/useContactType";
+import useMenuTree from "@/modules/navigation/hooks/useMenuTree";
+import { useAuthStore } from "@/modules/signin/store/auth.store";
+import { leadService } from "@/modules/lead/services/lead.service";
 
 const Drawer = dynamic(() => import("@/components/shared/Drawer"), {
   ssr: false,
@@ -21,20 +27,47 @@ const Select = dynamic(() => import("@/components/shared/Select"), {
   ssr: false,
 });
 
-const DEFAULT_FORM = {
-  name: "",
+interface Agent {
+  id: number;
+  username: string;
+  [key: string]: any;
+}
+
+interface FormValues {
+  full_name: string;
+  role: string;
+  company: string;
+  phone: string;
+  email: string;
+  follow_up_date: Date | null;
+  assigned_to: string;
+  lead_type_id: string;
+  contact_type_id: string;
+  date_become_hot: Date | null;
+  agent_id: number | null;
+}
+
+const DEFAULT_FORM: FormValues = {
+  full_name: "",
   role: "",
   company: "",
   phone: "",
   email: "",
-  followUpDate: null as Date | null,
-  assignedTo: "",
-  leadType: "",
-  contactType: "",
-  dateBecameHot: null as Date | null,
+  follow_up_date: null as Date | null,
+  assigned_to: "",
+  lead_type_id: "",
+  contact_type_id: "",
+  date_become_hot: null as Date | null,
+  agent_id: null as number | null,
 };
 
 export default function Sidebar() {
+  const params = useParams();
+  const agentUsername = params?.agent as string;
+  // ✅ Get token from global store
+  const token = useAuthStore((s) => s.tokens?.access_token);
+
+  const [loading, setLoading] = useState(false);
   const [drawer, setDrawer] = useState<boolean>(false);
   const [searchKey, setSearchKey] = useState<string>("");
   const [menus, setMenus] = useState<MenuProps[]>(MENUS);
@@ -57,7 +90,7 @@ export default function Sidebar() {
           if (!child.children) return null;
 
           const filteredGrandchildren = child.children.filter((grandchild) =>
-            grandchild.label.toLowerCase().includes(lowerKeyword)
+            grandchild.label.toLowerCase().includes(lowerKeyword),
           );
 
           return filteredGrandchildren.length
@@ -81,6 +114,46 @@ export default function Sidebar() {
 
   const handleInputChange = (name: string, value: any) => {
     setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+  const { options: leadTypeOptions } = useLeadType();
+  const { options: contactTypeOptions } = useContactType();
+  const { rawAgentList } = useMenuTree() as { rawAgentList: Agent[] };
+
+  useEffect(() => {
+    if (!agentUsername || !rawAgentList?.length) return;
+
+    const matchedAgent = rawAgentList.find(
+      (agent: any) => agent.username === agentUsername,
+    );
+
+    if (matchedAgent) {
+      // Schedule state update on next tick
+      queueMicrotask(() => {
+        setFormValues((prev) => ({
+          ...prev,
+          agent_id: matchedAgent.id as number,
+        }));
+      });
+    }
+  }, [agentUsername, rawAgentList]);
+
+  const submitForm = async () => {
+    if (!token) {
+      console.warn("Cannot submit lead: no authentication token found");
+      return;
+    }
+    try {
+      setLoading(true); // start loading
+      // Call service to submit form
+      await leadService.createLead(formValues, token);
+      setFormValues(DEFAULT_FORM);
+      setDrawer(false);
+      console.log("Lead created successfully");
+    } catch (error) {
+      console.error("Error creating lead:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -106,48 +179,28 @@ export default function Sidebar() {
                 label="Name"
                 type="text"
                 iconClassName="text-gray-500"
-                value={formValues.name}
-                onChange={(v: string) => handleInputChange("name", v)}
+                value={formValues.full_name}
+                onChange={(v: string) => handleInputChange("full_name", v)}
                 rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
                 required
               />
-              <Select
+              <Input
                 label="Role"
-                required
-                options={[
-                  { label: "Active", value: "active" },
-                  { label: "Inactive", value: "inactive" },
-                ]}
+                type="text"
+                iconClassName="text-gray-500"
                 value={formValues.role}
-                onChange={(v: string | string[]) =>
-                  handleInputChange("role", Array.isArray(v) ? v[0] : v)
-                }
-                rules={[
-                  {
-                    type: "custom",
-                    validator: (v) => v !== "inactive",
-                    message: "Inactive not allowed",
-                  },
-                ]}
-              />
-              <Select
-                label="Company"
+                onChange={(v: string) => handleInputChange("role", v)}
+                rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
                 required
-                options={[
-                  { label: "Active", value: "active" },
-                  { label: "Inactive", value: "inactive" },
-                ]}
+              />
+              <Input
+                label="Company"
+                type="text"
+                iconClassName="text-gray-500"
                 value={formValues.company}
-                onChange={(v: string | string[]) =>
-                  handleInputChange("company", Array.isArray(v) ? v[0] : v)
-                }
-                rules={[
-                  {
-                    type: "custom",
-                    validator: (v) => v !== "inactive",
-                    message: "Inactive not allowed",
-                  },
-                ]}
+                onChange={(v: string) => handleInputChange("company", v)}
+                rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
+                required
               />
               <Input
                 label="Phone"
@@ -164,12 +217,11 @@ export default function Sidebar() {
                 iconClassName="text-gray-500"
                 value={formValues.email}
                 onChange={(v: string) => handleInputChange("email", v)}
-                rules={[{ type: "required" }, { type: "minLength", value: 8 }]}
               />
               <DateInput
                 label="Follow Up Date"
-                value={formValues.followUpDate}
-                onChange={(date) => handleInputChange("followUpDate", date)}
+                value={formValues.follow_up_date}
+                onChange={(date) => handleInputChange("follow_up_date", date)}
               />
             </div>
 
@@ -178,30 +230,18 @@ export default function Sidebar() {
                 Default Option - cannot be changed
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-                <Select
+                <Input
                   label="Assigned To"
-                  options={[
-                    { label: "Active", value: "active" },
-                    { label: "Inactive", value: "inactive" },
-                  ]}
-                  value={formValues.assignedTo}
-                  onChange={(v) => handleInputChange("assignedTo", v)}
-                  rules={[
-                    {
-                      type: "custom",
-                      validator: (v) => v !== "inactive",
-                      message: "Inactive not allowed",
-                    },
-                  ]}
+                  type="text"
+                  iconClassName="text-gray-500"
+                  value={formValues.assigned_to}
+                  onChange={(v: string) => handleInputChange("assigned_to", v)}
                 />
                 <Select
                   label="Lead Type"
-                  options={[
-                    { label: "Active", value: "active" },
-                    { label: "Inactive", value: "inactive" },
-                  ]}
-                  value={formValues.leadType}
-                  onChange={(v) => handleInputChange("leadType", v)}
+                  options={leadTypeOptions}
+                  value={formValues.lead_type_id}
+                  onChange={(v) => handleInputChange("lead_type_id", v)}
                   rules={[
                     {
                       type: "custom",
@@ -212,12 +252,9 @@ export default function Sidebar() {
                 />
                 <Select
                   label="Contact Type"
-                  options={[
-                    { label: "Active", value: "active" },
-                    { label: "Inactive", value: "inactive" },
-                  ]}
-                  value={formValues.contactType}
-                  onChange={(v) => handleInputChange("contactType", v)}
+                  options={contactTypeOptions}
+                  value={formValues.contact_type_id}
+                  onChange={(v) => handleInputChange("contact_type_id", v)}
                   rules={[
                     {
                       type: "custom",
@@ -228,13 +265,19 @@ export default function Sidebar() {
                 />
                 <DateInput
                   label="Date Became Hot"
-                  value={formValues.dateBecameHot}
-                  onChange={(date) => handleInputChange("dateBecameHot", date)}
+                  value={formValues.date_become_hot}
+                  onChange={(date) =>
+                    handleInputChange("date_become_hot", date)
+                  }
                 />
               </div>
             </div>
           </div>
-          <AddLeadFooter clearForm={() => setFormValues(DEFAULT_FORM)} />
+          <AddLeadFooter
+            submitForm={submitForm}
+            clearForm={() => setFormValues(DEFAULT_FORM)}
+            loading={loading}
+          />
         </div>
       </Drawer>
     </div>

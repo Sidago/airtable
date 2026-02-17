@@ -9,5 +9,8 @@ export const apiConfig = {
     me: `${API_URL}/api/me`,
     logout: `${API_URL}/api/logout`,
     agentList: `${API_URL}/api/agents`,
+    leadTypes: `${API_URL}/api/lead-types`,
+    contactTypes: `${API_URL}/api/contact-types`,
+    createLead: `${API_URL}/api/lead`,
   },
 };
