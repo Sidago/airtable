@@ -279,6 +279,7 @@ export default function Table<T>({
                                 "group hover:bg-gray-50",
                                 isSelected && "bg-blue-50",
                                 rowClassName,
+                                onRowClick && "cursor-pointer",
                               )}
                               style={{
                                 height: rowHeights[globalIndex] || 48,
@@ -334,6 +335,7 @@ export default function Table<T>({
                         "group hover:bg-gray-50",
                         isSelected && "bg-blue-50",
                         rowClassName,
+                        onRowClick && "cursor-pointer",
                       )}
                       style={{ height: rowHeights[globalIndex] || 48 }}
                       onClick={() => onRowClick?.(row, globalIndex)}

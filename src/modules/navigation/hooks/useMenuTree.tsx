@@ -37,6 +37,7 @@ const AUXILIARY_BASE_SUBMENUS = [
   { label: "Fix Leads(V4)", path: "fix-lead" },
   { label: "Blocked Email To", path: "blocked-email" },
   { label: "Add a New Company", path: "add-company" },
+  { label: "Add Lead", path: "add-lead" },
   { label: "All Leads", path: "leads" },
   { label: "Create Additional Contact", path: "additional-contact" },
   { label: "Email Blacklist Directory", path: "email-blacklist" },

@@ -12,5 +12,8 @@ export const apiConfig = {
     leadTypes: `${API_URL}/api/lead-types`,
     contactTypes: `${API_URL}/api/contact-types`,
     createLead: `${API_URL}/api/lead`,
+    timezones: `${API_URL}/api/timezones`,
+    companies: `${API_URL}/api/companies`,
+    company: `${API_URL}/api/company`,
   },
 };

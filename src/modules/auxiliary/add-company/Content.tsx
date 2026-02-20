@@ -3,35 +3,70 @@ import React, { useState } from "react";
 import Input from "@/components/shared/Input";
 import Select from "@/components/shared/Select";
 import Footer from "./Footer";
+import { useTimezone } from "@/modules/company/hooks/useTimezone";
+import { useAuthStore } from "@/modules/signin/store/auth.store";
+import { CompanyService } from "@/modules/company/services/company.service";
+
+interface CompanyFormValues {
+  symbol: string;
+  name: string;
+  timezone_id: string; // keep as string for select, convert on submit
+  country: string;
+  state:string;
+  city: string;
+}
+
+const DEFAULT_FORM: CompanyFormValues = {
+  symbol: "",
+  name: "",
+  timezone_id: "",
+  country: "",
+  state:"",
+  city: "",
+};
 
 export default function Content() {
-  const [form, setForm] = useState({
-    symbol: "",
-    company: "",
-    timezone: "",
-    country: "",
-  });
+  const token = useAuthStore((s) => s.tokens?.access_token);
+  const { options } = useTimezone();
 
-  const updateField = (name: string, value: string) => {
+  const [form, setForm] = useState<CompanyFormValues>(DEFAULT_FORM);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const updateField = <K extends keyof CompanyFormValues>(
+    name: K,
+    value: CompanyFormValues[K],
+  ) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const clearForm = () => {
-    setForm({
-      symbol: "",
-      company: "",
-      timezone: "",
-      country: "",
-    });
+  const clearForm = (): void => {
+    setForm(DEFAULT_FORM);
   };
 
-  const onSubmit = () => {
-    console.log("Form Submitted:", form);
+  const onSubmit = async (): Promise<void> => {
+    if (!token) {
+      console.warn("No authentication token found");
+      return;
+    }
+    if (!form.name || !form.country || !form.state || !form.city || !form.timezone_id) {
+      console.warn("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await CompanyService.createCompany(form, token);
+      console.log("Company created successfully");
+      clearForm();
+    } catch (error) {
+      console.error("Error creating company:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
-      {/* MAIN CONTENT - scrollable */}
       <div className="flex-1 overflow-y-auto">
         <div className="w-full max-w-4xl mx-auto px-5 py-8">
           <p className="text-xl mt-10 mb-10">Add a New Company</p>
@@ -40,54 +75,78 @@ export default function Content() {
             <Input
               label={
                 <span>
-                  Company Symbol <span className="text-red-400">*</span>
+                  Company Name <span className="text-red-400">*</span>
                 </span>
               }
               type="text"
+              value={form.name}
+              onChange={(v: string) => updateField("name", v)}
+              rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
+            />
+
+            <Input
+              label="Company Symbol (Optional)"
+              type="text"
               value={form.symbol}
-              onChange={(v) => updateField("symbol", v)}
-              iconClassName="text-gray-500"
+              onChange={(v: string) => updateField("symbol", v)}
+            />
+
+            <Input
+              label={
+                <span>
+                  Country <span className="text-red-400">*</span>
+                </span>
+              }
+              type="text"
+              value={form.country}
+              onChange={(v: string) => updateField("country", v)}
               rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
             />
 
             <Input
               label={
                 <span>
-                  Company Name <span className="text-red-400">*</span>
+                  State <span className="text-red-400">*</span>
                 </span>
               }
               type="text"
-              value={form.company}
-              onChange={(v) => updateField("company", v)}
-              iconClassName="text-gray-500"
-              rules={[{ type: "required" }, { type: "minLength", value: 3 }]}
+              value={form.state}
+              onChange={(v: string) => updateField("state", v)}
+              rules={[{ type: "required" }, { type: "minLength", value: 2 }]}
+            />
+
+            <Input
+              label={
+                <span>
+                  City <span className="text-red-400">*</span>
+                </span>
+              }
+              type="text"
+              value={form.city}
+              onChange={(v: string) => updateField("city", v)}
+              rules={[{ type: "required" }, { type: "minLength", value: 2 }]}
             />
 
             <Select
-              label="Timezone"
-              value={form.timezone}
-              onChange={(v) => updateField("timezone", v as string)}
-              options={[
-                { label: "1-EST", value: "1est" },
-                { label: "2-EST", value: "2est" },
-              ]}
-            />
-
-            <Select
-              label="Country"
-              value={form.country}
-              onChange={(v) => updateField("country", v as string)}
-              options={[
-                { label: "USA", value: "usa" },
-                { label: "Canada", value: "canada" },
-              ]}
+              label={
+                <span>
+                  Timezone <span className="text-red-400">*</span>
+                </span>
+              }
+              value={form.timezone_id}
+              onChange={(v) => updateField("timezone_id", String(v))}
+              options={options}
             />
           </div>
         </div>
       </div>
 
-      {/* FIXED FOOTER */}
-      <Footer btnLabel="Create" clearForm={clearForm} onClick={onSubmit} />
+      <Footer
+        btnLabel="Create"
+        loading={loading}
+        clearForm={clearForm}
+        onClick={onSubmit}
+      />
     </div>
   );
 }
