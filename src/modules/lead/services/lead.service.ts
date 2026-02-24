@@ -4,15 +4,11 @@ import { apiConfig } from "@/config/api.config";
 interface FormValues {
   full_name: string;
   role: string;
-  company: string;
+  company_id: number;
   phone: string;
   email: string;
-  follow_up_date: Date | null;
-  assigned_to: string;
-  lead_type_id: string;
-  contact_type_id: string;
-  date_become_hot: Date | null;
-  agent_id: number | null;
+  contact_type_id: number;
+  others_contacts: string;
 }
 
 export const leadService = {
@@ -64,6 +60,18 @@ export const leadService = {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw await res.json();
+    return res.json();
+  },
+  allLeads: async (token: string) => {
+    const res = await fetch(apiConfig.endpoints.leads, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) throw await res.json();

@@ -142,18 +142,7 @@ export default function Sidebar() {
       console.warn("Cannot submit lead: no authentication token found");
       return;
     }
-    try {
-      setLoading(true); // start loading
-      // Call service to submit form
-      await leadService.createLead(formValues, token);
-      setFormValues(DEFAULT_FORM);
-      setDrawer(false);
-      console.log("Lead created successfully");
-    } catch (error) {
-      console.error("Error creating lead:", error);
-    } finally {
-      setLoading(false);
-    }
+    console.log("Submitting form with values:", formValues);
   };
 
   return (

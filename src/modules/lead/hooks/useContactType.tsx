@@ -52,7 +52,7 @@ export const useContactType = (): UseContactTypeReturn => {
   const options = useMemo<DropdownOption[]>(() => {
     return data.map((item: any) => ({
       label: item.label,
-      value: item.id,
+      value: String(item.id),
     }));
   }, [data]);
 

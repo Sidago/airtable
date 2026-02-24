@@ -15,5 +15,6 @@ export const apiConfig = {
     timezones: `${API_URL}/api/timezones`,
     companies: `${API_URL}/api/companies`,
     company: `${API_URL}/api/company`,
+    leads: `${API_URL}/api/leads`,
   },
 };
