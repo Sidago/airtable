@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
@@ -42,12 +41,14 @@ interface UseLeadsReturn {
   loading: boolean;
   error: unknown;
   refetch: () => Promise<void>;
+  selectedLead: Lead | null;
+  setSelectedLead: (lead: Lead | null) => void;
 }
 
 export const useLeads = (): UseLeadsReturn => {
-  // ✅ Get token directly from store
   const token = useAuthStore((s) => s.tokens?.access_token);
 
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<unknown>(null);
@@ -63,12 +64,12 @@ export const useLeads = (): UseLeadsReturn => {
       setError(null);
 
       const response = await leadService.allLeads(token);
-      // ✅ Ensure we always get an array
+
       const data: Lead[] = Array.isArray(response?.data)
         ? response.data
         : Array.isArray(response)
-          ? response
-          : [];
+        ? response
+        : [];
 
       setLeads(data);
     } catch (err) {
@@ -78,19 +79,19 @@ export const useLeads = (): UseLeadsReturn => {
     }
   }, [token]);
 
-  // ✅ Fetch leads on token change
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
 
-  // ✅ Stable return object to avoid unnecessary re-renders
   return useMemo(
     () => ({
       leads,
       loading,
       error,
       refetch: fetchLeads,
+      selectedLead,
+      setSelectedLead,
     }),
-    [leads, loading, error, fetchLeads],
+    [leads, loading, error, fetchLeads, selectedLead]
   );
 };

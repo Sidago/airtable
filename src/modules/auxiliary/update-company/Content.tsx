@@ -46,12 +46,12 @@ export default function Content() {
       id: item.id,
       company_name: item.name,
       company_symbol: (
-        <CompanySymbol label={item.symbol} index={index + 1} />
+        <CompanySymbol label={item.symbol} index={item.id} />
       ),
       previous_company_symbol: item.previous_company_symbol ? (
         <CompanySymbol
           label={item.previous_company_symbol}
-          index={index + 1}
+          index={item.id}
         />
       ) : (
         "-"
