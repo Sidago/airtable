@@ -77,4 +77,33 @@ export const leadService = {
     if (!res.ok) throw await res.json();
     return res.json();
   },
+  updateLead: async (id:string | number,data: FormValues, token: string) => {
+    // Create a shallow copy to avoid mutating original formValues
+    const payload: any = { ...data };
+
+    // Convert to number if not empty, otherwise remove the field
+    if (payload.lead_type_id) {
+      payload.lead_type_id = Number(payload.lead_type_id);
+    } else {
+      delete payload.lead_type_id;
+    }
+
+    if (payload.contact_type_id) {
+      payload.contact_type_id = Number(payload.contact_type_id);
+    } else {
+      delete payload.contact_type_id;
+    }
+
+    const res = await fetch(`${apiConfig.endpoints.createLead}/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw await res.json();
+    return res.json();
+  },
 };

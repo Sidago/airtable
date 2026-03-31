@@ -2,16 +2,16 @@
 
 import Table, { TableColumn } from "@/components/table/Table";
 import React, { useState } from "react";
-import CommonDrawer from "@/helpers/CommonDrawer";
 import Header from "@/components/shared/Header";
 import { ChevronDown } from "lucide-react";
 import { useLeads } from "./hooks/useLeads";
 import ContactType from "@/components/ui/contact-type/ContactType";
 import CompanySymbol from "@/components/ui/company-symbol/CompanySymbol";
 import Timezone from "@/components/ui/timezone/Timezone";
+import LeadDrawer from "./components/LeadDrawer";
 
 export default function Content() {
-  const { leads = [] } = useLeads();
+  const { leads = [], selectedLead, setSelectedLead, refetch } = useLeads();
 
   const [drawer, setDrawer] = useState(false);
   const [groupBy, setGroupBy] = React.useState<GroupKey>(null);
@@ -37,7 +37,10 @@ export default function Content() {
         <Table
           data={leads}
           columns={columns}
-          // onRowClick={() => setDrawer(true)}
+          onRowClick={(row) => {
+            setSelectedLead(row);
+            setDrawer(true);
+          }}
           groupBy={
             groupBy === "company"
               ? (row) => row.company?.name ?? "Unknown"
@@ -58,11 +61,16 @@ export default function Content() {
         </div>
       </div>
 
-      <CommonDrawer
+      <LeadDrawer
         isOpen={drawer}
-        onClose={() => setDrawer(false)}
+        onClose={() => {
+          setSelectedLead(null);
+          setDrawer(false);
+          refetch();
+        }}
         isScrolled={isScrolled}
         onScroll={handleScroll}
+        lead={selectedLead}
       />
     </div>
   );
